@@ -1,0 +1,39 @@
+{
+  "name": "codex-3d-asset",
+  "version": "0.1.0",
+  "description": "Generate Codex-ready white-background references with no shadows, then submit them to Tripo 3D.",
+  "author": {
+    "name": "Codex Local",
+    "email": "",
+    "url": ""
+  },
+  "keywords": [
+    "codex",
+    "tripo",
+    "3d",
+    "asset-pack",
+    "style",
+    "game-assets"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Codex 3D Asset",
+    "shortDescription": "Generate white-background, no-shadow references in Codex and send them to Tripo 3D.",
+    "longDescription": "Creates Tripo-ready reference images on a seamless white background with no cast, contact, or ambient shadow, asks for style when needed, accepts example images, supports asset-pack manifests, forces front-view T-pose for characters, and submits the results to Tripo 3D.",
+    "developerName": "Local",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Crée un personnage low poly en T-pose sur fond blanc sans ombre puis envoie-le à Tripo.",
+      "Génère tous les assets pour un match de foot low poly.",
+      "Utilise ces images d'exemple pour définir le style avant Tripo."
+    ],
+    "brandColor": "#0ea5a4",
+    "composerIcon": "./assets/icon.svg",
+    "logo": "./assets/icon.svg",
+    "screenshots": []
+  }
+}

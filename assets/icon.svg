@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Tripo Image Bridge">
+  <rect width="256" height="256" rx="24" fill="#0f172a"/>
+  <rect x="28" y="28" width="200" height="200" rx="18" fill="#f8fafc"/>
+  <path d="M64 74h128v18H64zM119 92h18v72h48v18h-48v22h-18v-22H71v-18h48z" fill="#0f172a"/>
+  <circle cx="192" cy="64" r="16" fill="#0ea5a4"/>
+</svg>

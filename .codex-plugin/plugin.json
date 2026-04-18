@@ -1,6 +1,6 @@
 {
   "name": "codex-3d-asset",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "Codex plugin for automatic Tripo-ready image-to-3D workflows with runtime dependency bootstrap, wallet-aware Tripo handoff, continuous post-image flow, widget-driven local preview, and selectable download formats.",
   "author": {
     "name": "Anis Ayari",

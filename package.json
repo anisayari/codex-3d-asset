@@ -6,7 +6,8 @@
     "widget:mcp": "node ./mcp-server/bootstrap.mjs",
     "widget:server": "node ./mcp-server/server.mjs",
     "viewer:server": "node ./mcp-server/local-viewer-server.mjs",
-    "check:widget": "node ./mcp-server/smoke-test.mjs"
+    "check:widget": "node ./mcp-server/smoke-test.mjs",
+    "check:wallet-route": "node ./mcp-server/wallet-route-smoke-test.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/ext-apps": "^1.0.1",

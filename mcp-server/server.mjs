@@ -17,8 +17,20 @@ const ACTIVE_VIEWER_PORT = Number.parseInt(
   process.env.CODEX_3D_ASSET_ACTIVE_VIEWER_PORT || process.env.CODEX_3D_ASSET_VIEWER_PORT || "4174",
   10
 );
-const PLUGIN_VERSION = "0.5.3";
-const TRIPO_API_BASE_URL = "https://api.tripo3d.ai/v2/openapi";
+const PLUGIN_VERSION = "0.5.4";
+const TRIPO_API_BASE_URL =
+  process.env.CODEX_3D_ASSET_TRIPO_API_BASE_URL || "https://api.tripo3d.ai/v2/openapi";
+const TRIPO_WALLET_PATH_CANDIDATES = Array.from(
+  new Set(
+    (
+      process.env.CODEX_3D_ASSET_TRIPO_WALLET_PATHS ||
+      "/wallet,/wallet/balance,/wallet/user/balance,/user/wallet/balance,/balance,/credits"
+    )
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean)
+  )
+);
 const WIDGET_URI = "ui://widget/asset-preview-v1.html";
 const WIDGET_HTML = readFileSync(
   path.join(ROOT_DIR, "mcp-server", "public", "asset-preview-widget.html"),
@@ -57,6 +69,11 @@ function extractWalletBalance(payload) {
     "data.credit_balance",
     "data.credits",
     "data.balance",
+    "available_credits",
+    "remaining_credits",
+    "credit_balance",
+    "credits",
+    "balance",
   ];
 
   for (const candidate of candidates) {
@@ -67,6 +84,79 @@ function extractWalletBalance(payload) {
   }
 
   return null;
+}
+
+async function requestWalletBalance(baseUrl, apiKey) {
+  const attemptedPaths = [];
+  let lastFailure = null;
+
+  for (const walletPath of TRIPO_WALLET_PATH_CANDIDATES) {
+    attemptedPaths.push(walletPath);
+
+    let response;
+    try {
+      response = await fetch(`${baseUrl}${walletPath}`, {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+        },
+      });
+    } catch (error) {
+      lastFailure = {
+        walletPath,
+        error: error instanceof Error ? error.message : String(error),
+      };
+      continue;
+    }
+
+    const rawText = await response.text();
+    let payload = null;
+    try {
+      payload = JSON.parse(rawText);
+    } catch {
+      payload = { raw: rawText };
+    }
+
+    const balance = extractWalletBalance(payload);
+    if (response.ok && balance) {
+      return {
+        ok: true,
+        verified: true,
+        walletPath,
+        attemptedPaths,
+        balanceCredits: balance.value,
+        balanceField: balance.field,
+        response: payload,
+      };
+    }
+
+    if (response.ok) {
+      return {
+        ok: true,
+        verified: false,
+        walletPath,
+        attemptedPaths,
+        response: payload,
+      };
+    }
+
+    lastFailure = {
+      ok: false,
+      verified: false,
+      status: response.status,
+      walletPath,
+      attemptedPaths: [...attemptedPaths],
+      response: payload,
+    };
+  }
+
+  return (
+    lastFailure || {
+      ok: false,
+      verified: false,
+      attemptedPaths,
+      error: "Wallet request did not complete successfully.",
+    }
+  );
 }
 
 registerAppResource(
@@ -196,40 +286,23 @@ registerAppTool(
     }
 
     try {
-      const response = await fetch(`${TRIPO_API_BASE_URL}/wallet`, {
-        headers: {
-          Authorization: `Bearer ${effectiveApiKey}`,
-        },
-      });
-
-      const rawText = await response.text();
-      let payload = null;
-      try {
-        payload = JSON.parse(rawText);
-      } catch {
-        payload = { raw: rawText };
-      }
-
-      const balance = extractWalletBalance(payload);
-      if (!response.ok) {
+      const walletResult = await requestWalletBalance(TRIPO_API_BASE_URL, effectiveApiKey);
+      if (!walletResult.ok) {
         return {
           content: [
             {
               type: "text",
-              text: `Tripo wallet check failed with status ${response.status}.`,
+              text:
+                walletResult.status != null
+                  ? `Tripo wallet check failed with status ${walletResult.status} after trying ${walletResult.attemptedPaths?.join(", ")}.`
+                  : `Tripo wallet check failed after trying ${walletResult.attemptedPaths?.join(", ") || "the configured wallet routes"}.`,
             },
           ],
-          structuredContent: {
-            ok: false,
-            verified: false,
-            status: response.status,
-            walletPath: "/wallet",
-            response: payload,
-          },
+          structuredContent: walletResult,
         };
       }
 
-      if (!balance) {
+      if (!walletResult.verified) {
         return {
           content: [
             {
@@ -237,12 +310,7 @@ registerAppTool(
               text: "Tripo wallet responded, but the credit balance field could not be identified.",
             },
           ],
-          structuredContent: {
-            ok: true,
-            verified: false,
-            walletPath: "/wallet",
-            response: payload,
-          },
+          structuredContent: walletResult,
         };
       }
 
@@ -250,17 +318,10 @@ registerAppTool(
         content: [
           {
             type: "text",
-            text: `Current Tripo wallet balance: ${balance.value} credits.`,
+            text: `Current Tripo wallet balance: ${walletResult.balanceCredits} credits.`,
           },
         ],
-        structuredContent: {
-          ok: true,
-          verified: true,
-          walletPath: "/wallet",
-          balanceCredits: balance.value,
-          balanceField: balance.field,
-          response: payload,
-        },
+        structuredContent: walletResult,
       };
     } catch (error) {
       return {
@@ -273,7 +334,7 @@ registerAppTool(
         structuredContent: {
           ok: false,
           verified: false,
-          walletPath: "/wallet",
+          attemptedPaths: TRIPO_WALLET_PATH_CANDIDATES,
           error: error instanceof Error ? error.message : String(error),
         },
       };

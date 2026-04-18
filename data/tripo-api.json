@@ -19,13 +19,25 @@
     {
       "name": "getWalletBalance",
       "method": "GET",
-      "path": "/wallet",
+      "pathCandidates": [
+        "/wallet",
+        "/wallet/balance",
+        "/wallet/user/balance",
+        "/user/wallet/balance",
+        "/balance",
+        "/credits"
+      ],
       "resultFieldCandidates": [
         "data.available_credits",
         "data.remaining_credits",
         "data.credit_balance",
         "data.credits",
-        "data.balance"
+        "data.balance",
+        "available_credits",
+        "remaining_credits",
+        "credit_balance",
+        "credits",
+        "balance"
       ]
     },
     {
@@ -71,6 +83,7 @@
     "Prefer direct API calls over browser automation.",
     "Check the API key before generating the reference when the user asked for Tripo handoff.",
     "Before creating any paid Tripo generation or conversion task, call the wallet endpoint and retrieve the user's current credits when the endpoint is available.",
+    "Try the configured wallet path candidates instead of assuming a single stable path, because the accessible public docs do not expose one clearly enough for the plugin to hard-code only one route.",
     "If the wallet call succeeds, report the current credit balance before asking for approval to spend credits.",
     "If the wallet call shows zero credits, or fewer credits than a verified task estimate, tell the user to recharge before launching the task.",
     "If the wallet call fails or returns an unknown shape, say that you could not verify the current credit balance and do not invent a number.",

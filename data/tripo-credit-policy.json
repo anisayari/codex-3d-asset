@@ -17,7 +17,14 @@
   "walletCheck": {
     "requiredBeforePaidTask": true,
     "endpointName": "getWalletBalance",
-    "path": "/wallet",
+    "pathCandidates": [
+      "/wallet",
+      "/wallet/balance",
+      "/wallet/user/balance",
+      "/user/wallet/balance",
+      "/balance",
+      "/credits"
+    ],
     "reportBalanceBeforeApproval": true,
     "whenBalanceIsZero": "Tell the user that Tripo reports zero available credits and ask them to recharge before launching generation.",
     "whenBalanceIsLowerThanKnownEstimate": "Tell the user that the available balance appears lower than the known estimated task cost and ask them to recharge first.",

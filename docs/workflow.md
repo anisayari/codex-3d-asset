@@ -83,6 +83,7 @@ I also did not find a verified exact API ETA field in the currently accessible o
 When the Tripo wallet endpoint is available, the plugin should:
 
 - retrieve the current balance before any paid task
+- try the fallback wallet path candidates instead of assuming only one hard-coded route
 - report the balance before asking for final approval
 - tell the user to recharge if the balance is zero
 - tell the user when the balance appears lower than a known estimate

@@ -185,6 +185,7 @@ When Tripo handoff is requested:
 - call the wallet endpoint before any paid generation or conversion task when it is available
 - if the wallet call succeeds, report the current credit balance before asking for final approval
 - if the wallet call shows no credits, stop and ask the user to recharge first
+- if the first wallet route returns `404`, try the fallback wallet path candidates from `../../data/tripo-api.json` before giving up
 - if API access is not set up yet, give the user both the official docs link and the direct API key page from `../../data/setup.json` or `../../data/tripo-api.json`
 - before launching the 3D task, disclose the credit estimate when a reliable estimate is available
 - if the exact per-task credit amount is not verified from the current official docs, say that clearly instead of inventing a number

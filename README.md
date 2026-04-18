@@ -1,6 +1,6 @@
 # Codex 3D Asset
 
-`codex-3d-asset` is a Codex plugin with a local MCP preview widget.
+`codex-3d-asset` is a Codex plugin with a local MCP preview widget and automatic runtime bootstrap.
 
 It gives Codex a clear workflow for:
 
@@ -13,6 +13,8 @@ It gives Codex a clear workflow for:
 - preparing asset packs from reusable templates
 - handing the result off to Tripo through the official API inside Codex
 - asking for explicit user confirmation before spending Tripo credits when needed
+- bootstrapping the local MCP dependencies automatically on first launch
+- starting a plugin-scoped local viewer server automatically
 - opening a local 3D preview widget in Codex after a previewable model is downloaded
 
 ## Plugin Contents
@@ -22,7 +24,7 @@ It gives Codex a clear workflow for:
 - `assets/icon.svg`: plugin icon
 - `assets/soldier-helmet-logo.png`: plugin logo
 - `.mcp.json`: local MCP server entrypoint for the preview widget
-- `package.json`: local widget server dependencies
+- `package.json`: local widget server dependencies and scripts
 - `data/setup.json`: required setup values
 - `data/download-formats.json`: download format defaults and conversion rules
 - `data/tripo-api.json`: Tripo API workflow reference
@@ -33,6 +35,9 @@ It gives Codex a clear workflow for:
 - `data/assets/`: bundled sample assets and textures
 - `docs/AGENTS.example.md`: persistent-preferences template
 - `viewer/index.html`: local 3D preview page
+- `outputs/`: plugin-scoped previewable downloads
+- `mcp-server/bootstrap.mjs`: dependency and viewer bootstrap entrypoint
+- `mcp-server/local-viewer-server.mjs`: local static server for the viewer and outputs
 - `mcp-server/server.mjs`: local MCP server for the preview widget
 - `mcp-server/public/asset-preview-widget.html`: Codex preview widget UI
 
@@ -52,14 +57,11 @@ mkdir -p ~/plugins/codex-3d-asset
 rsync -a --delete --exclude .git ./ ~/plugins/codex-3d-asset/
 ```
 
-Install the local MCP widget dependencies:
-
-```bash
-cd ~/plugins/codex-3d-asset
-npm install
-```
-
 Then refresh Codex so the new local MCP tool descriptors are reloaded.
+
+On the first MCP launch, the plugin now checks its local Node dependencies and installs any missing packages automatically. It also starts the local viewer server automatically and prepares `outputs/` for previewable downloads.
+
+That means there is no normal `npm install` step for end users anymore.
 
 Make sure `~/.agents/plugins/marketplace.json` contains this entry:
 
@@ -77,6 +79,21 @@ Make sure `~/.agents/plugins/marketplace.json` contains this entry:
   "category": "Productivity"
 }
 ```
+
+## What Is Automatic
+
+After the plugin bundle is installed in Codex, these steps are automatic:
+
+- local MCP dependency check
+- local dependency installation when `node_modules` is missing
+- local viewer server startup
+- creation of the plugin `outputs/` directory for previewable assets
+- generation of a local runtime file at `.codex-runtime/viewer.json` so Codex can reuse the active viewer port
+
+Two things are still necessarily manual:
+
+- the plugin must exist in a Codex marketplace and be installed once
+- `TRIPO_API_KEY` must already be present in the environment available to Codex
 
 If you do not already have a marketplace file, the minimal shape is:
 
@@ -156,6 +173,8 @@ If you keep using the same style or format, put it there once and let the plugin
 Tripo handoff requires `TRIPO_API_KEY`.
 
 This is not stored in the plugin manifest. The plugin expects the key to already exist in the environment available to Codex.
+
+The plugin can check whether the key exists, but it cannot invent or provision that secret for the user.
 
 Set it before starting the workflow:
 
@@ -242,8 +261,10 @@ The bundled viewer lives here:
 
 Recommended flow:
 
-- start a local server rooted high enough to serve both the viewer and the generated model file
-- build the viewer URL with `?model=/relative/path/to/model.glb`
+- let the plugin bootstrap start the local server automatically
+- save previewable files inside `outputs/`
+- read `.codex-runtime/viewer.json` when present and use its `viewerUrlBase` and `entryPath`
+- build the viewer URL with `?model=/outputs/.../file.glb`
 - call `show_3d_asset_widget` with that viewer URL when the widget tool is available
 - let the widget request fullscreen on mount and point its open-in-app target at the local viewer
 - return the localhost URL as a Markdown link only when the widget tool is unavailable
@@ -252,6 +273,7 @@ Recommended flow:
 Practical note:
 
 - the widget is delivered through the plugin's local MCP server, not through Playwright
+- the local viewer server is delivered through the plugin's Node bootstrap, not through Python
 - the widget can ask the host for fullscreen with `window.openai.requestDisplayMode(...)`, but the host still decides whether to grant that request
 - the widget also sets the host open-in-app target to the local viewer URL
 
@@ -271,6 +293,22 @@ The `data/` directory contains:
 - reusable style and prompt rules
 - a ready-made soccer asset-pack template
 - a bundled sample asset library extracted from the provided `data (1).zip`
+
+## Troubleshooting
+
+If the first automatic bootstrap fails, verify that `node` and `npm` are available to Codex, then run:
+
+```bash
+cd ~/plugins/codex-3d-asset
+CODEX_3D_ASSET_BOOTSTRAP_ONLY=1 node ./mcp-server/bootstrap.mjs
+npm run check:widget
+```
+
+If the default preview port is busy, set a different one before launching Codex:
+
+```bash
+export CODEX_3D_ASSET_VIEWER_PORT=4184
+```
 
 ## License
 

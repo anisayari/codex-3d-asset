@@ -3,7 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "widget:mcp": "node ./mcp-server/server.mjs",
+    "widget:mcp": "node ./mcp-server/bootstrap.mjs",
+    "widget:server": "node ./mcp-server/server.mjs",
+    "viewer:server": "node ./mcp-server/local-viewer-server.mjs",
     "check:widget": "node ./mcp-server/smoke-test.mjs"
   },
   "dependencies": {

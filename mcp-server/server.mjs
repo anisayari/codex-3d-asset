@@ -13,22 +13,31 @@ import { z } from "zod";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, "..");
+const ACTIVE_VIEWER_PORT = Number.parseInt(
+  process.env.CODEX_3D_ASSET_ACTIVE_VIEWER_PORT || process.env.CODEX_3D_ASSET_VIEWER_PORT || "4174",
+  10
+);
+const PLUGIN_VERSION = "0.5.0";
 const WIDGET_URI = "ui://widget/asset-preview-v1.html";
 const WIDGET_HTML = readFileSync(
   path.join(ROOT_DIR, "mcp-server", "public", "asset-preview-widget.html"),
   "utf8"
 );
 
-const LOCAL_VIEWER_ORIGINS = [
-  "http://127.0.0.1:4173",
-  "http://127.0.0.1:4174",
-  "http://localhost:4173",
-  "http://localhost:4174",
-];
+const LOCAL_VIEWER_ORIGINS = Array.from(
+  new Set([
+    `http://127.0.0.1:${ACTIVE_VIEWER_PORT}`,
+    `http://localhost:${ACTIVE_VIEWER_PORT}`,
+    "http://127.0.0.1:4173",
+    "http://127.0.0.1:4174",
+    "http://localhost:4173",
+    "http://localhost:4174",
+  ])
+);
 
 const server = new McpServer({
   name: "codex-3d-asset-widget",
-  version: "0.4.0",
+  version: PLUGIN_VERSION,
 });
 
 registerAppResource(

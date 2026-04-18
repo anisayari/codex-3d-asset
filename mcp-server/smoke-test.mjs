@@ -1,3 +1,5 @@
+import http from "node:http";
+import net from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -7,10 +9,68 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, "..");
 
+function isPortFree(port) {
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.unref();
+    server.on("error", () => resolve(false));
+    server.listen(port, "127.0.0.1", () => {
+      server.close(() => resolve(true));
+    });
+  });
+}
+
+async function findFreePort(start = 4180, end = 4190) {
+  for (let port = start; port <= end; port += 1) {
+    if (await isPortFree(port)) {
+      return port;
+    }
+  }
+
+  throw new Error(`No free port found in the ${start}-${end} range`);
+}
+
+function readHealth(port) {
+  return new Promise((resolve, reject) => {
+    const request = http.get(
+      {
+        hostname: "127.0.0.1",
+        port,
+        path: "/__codex_3d_asset_health",
+        timeout: 1500,
+      },
+      (response) => {
+        let body = "";
+        response.setEncoding("utf8");
+        response.on("data", (chunk) => {
+          body += chunk;
+        });
+        response.on("end", () => {
+          try {
+            resolve(JSON.parse(body));
+          } catch (error) {
+            reject(error);
+          }
+        });
+      }
+    );
+
+    request.on("timeout", () => {
+      request.destroy(new Error("viewer health request timed out"));
+    });
+    request.on("error", reject);
+  });
+}
+
+const viewerPort = await findFreePort();
 const transport = new StdioClientTransport({
   command: "node",
-  args: ["./mcp-server/server.mjs"],
+  args: ["./mcp-server/bootstrap.mjs"],
   cwd: ROOT_DIR,
+  env: {
+    ...process.env,
+    CODEX_3D_ASSET_VIEWER_PORT: String(viewerPort),
+  },
 });
 
 const client = new Client({
@@ -30,11 +90,15 @@ if (tool?._meta?.ui?.resourceUri !== "ui://widget/asset-preview-v1.html") {
   throw new Error("Unexpected widget resource URI");
 }
 
+const health = await readHealth(viewerPort);
+if (health?.entryPath !== "/viewer/index.html") {
+  throw new Error("Viewer bootstrap did not expose the expected entry path");
+}
+
 const callResult = await client.callTool({
   name: "show_3d_asset_widget",
   arguments: {
-    viewerUrl:
-      "http://127.0.0.1:4174/codex-3d-asset/viewer/index.html?model=/codex-3d-asset-api-test/c84d9ea6-ea7f-43f5-b8e2-5170f22bd808-pbr-model.glb",
+    viewerUrl: `http://127.0.0.1:${viewerPort}/viewer/index.html?model=/outputs/smoke-test-knight.glb`,
     assetName: "Smoke Test Knight",
     format: "glb",
     autoFullscreen: true,
@@ -50,6 +114,7 @@ console.log(
     {
       toolName: tool.name,
       resourceUri: tool?._meta?.ui?.resourceUri,
+      viewerHealth: health,
       callStructuredContent: callResult.structuredContent,
     },
     null,

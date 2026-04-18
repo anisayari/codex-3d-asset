@@ -7,7 +7,7 @@ description: Generate clean reference images for Tripo inside Codex, enforce whi
 
 Use this skill when the user wants a 3D asset or a 3D asset pack prepared inside Codex.
 
-This plugin is instruction-only. Keep the workflow inside Codex-native tools for normal plugin use.
+The generation workflow stays instruction-driven. Use the bundled MCP tool only for the local 3D preview step.
 
 ## Source Files
 
@@ -22,7 +22,11 @@ Use these files as the plugin's static data:
 - `../../data/pack-templates/football-match-low-poly.json`
 - `../../data/assets/`
 - `../../docs/AGENTS.example.md`
+- `../../.codex-runtime/viewer.json`
 - `../../viewer/index.html`
+- `../../outputs/`
+- `../../mcp-server/bootstrap.mjs`
+- `../../mcp-server/local-viewer-server.mjs`
 - `../../mcp-server/server.mjs`
 - `../../mcp-server/public/asset-preview-widget.html`
 
@@ -62,6 +66,7 @@ Use these files as the plugin's static data:
   - default to `stylized` for one-off characters or props
 - Once the user answers the style question, continue automatically. Do not stop after the image is generated. Do not wait for another confirmation unless a required secret is missing.
 - Before spending Tripo credits, show the generated reference image and ask for one short confirmation unless the user explicitly said to continue without confirmation.
+- Do not ask the user to run `npm install` for this plugin during normal use. The bundled MCP bootstrap should install missing local Node dependencies automatically on first launch.
 
 ## Handoff Discipline
 
@@ -107,6 +112,7 @@ When Tripo handoff is requested:
 - keep the upload tied to the generated reference image used in the conversation
 - use API upload, task creation, and task polling directly
 - report the final task status instead of stopping at `Image generated`
+- when local preview will be needed, download previewable artifacts inside `../../outputs/<asset-slug>/`
 - if the requested download format is `glb`, download the generated `glb` output directly
 - if the requested download format is `fbx`, `gltf`, `obj`, `stl`, or `usdz`, run a `convert_model` task after the generation task succeeds
 - if the conversion result is returned as a zip archive, download the zip and report that exact file path
@@ -120,8 +126,11 @@ When Tripo handoff is requested:
 After a model file is available:
 
 - use `../../viewer/index.html` as the local viewer entry point
-- start a localhost server rooted high enough to serve both the viewer and the generated model file
-- build the viewer URL with a `model` query parameter pointing to the generated asset
+- keep previewable artifacts under `../../outputs/` so the plugin-scoped local viewer server can serve them
+- do not start Python or any ad hoc local server; the plugin bootstrap should already start the viewer server
+- if `../../.codex-runtime/viewer.json` exists, read it and use its `viewerUrlBase`, `activePort`, `entryPath`, and `previewOutputPrefix`
+- if the runtime file is missing, fall back to the default local viewer settings from `../../data/handoff-flow.json`
+- build the viewer URL with a `model` query parameter pointing to the generated asset under `/outputs/...`
 - if `show_3d_asset_widget` is available, call it instead of only returning a link
 - the widget should request fullscreen on mount and set the host open-in-app target to the local viewer URL
 - if the widget tool is unavailable, return that localhost viewer URL as a Markdown link in the Codex response
@@ -149,5 +158,6 @@ Report back with:
 - the reference image path
 - the requested download format
 - whether Tripo API handoff was completed in-session
+- the downloaded output path under `outputs/` when preview was prepared
 - the localhost viewer URL when a preview was launched
 - any downloaded model paths when available

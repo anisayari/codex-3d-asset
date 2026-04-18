@@ -14,6 +14,7 @@ This plugin is instruction-only. Keep the workflow inside Codex-native tools for
 Use these files as the plugin's static data:
 
 - `../../data/setup.json`
+- `../../data/download-formats.json`
 - `../../data/tripo-api.json`
 - `../../data/style-presets.json`
 - `../../data/reference-rules.json`
@@ -54,11 +55,13 @@ Use these files as the plugin's static data:
 
 1. Classify the request as `character` or `object`.
 2. Resolve the style from explicit text, example images, or the one short question above.
-3. If the user wants a Tripo handoff, check `TRIPO_API_KEY` before generating the image.
-4. If `TRIPO_API_KEY` is missing, stop immediately and give the setup instruction from `../../data/setup.json`.
-5. If the request is a pack, load the pack template and adapt it.
-6. Generate the reference image with Codex using the white-background no-shadow rules.
-7. Continue automatically to the Tripo API step in the same turn when `TRIPO_API_KEY` is available.
+3. Resolve the desired download format from `../../data/download-formats.json`.
+4. If the user does not specify a format, default to `glb` and continue without asking.
+5. If the user wants a Tripo handoff, check `TRIPO_API_KEY` before generating the image.
+6. If `TRIPO_API_KEY` is missing, stop immediately and give the setup instruction from `../../data/setup.json`.
+7. If the request is a pack, load the pack template and adapt it.
+8. Generate the reference image with Codex using the white-background no-shadow rules.
+9. Continue automatically to the Tripo API step in the same turn when `TRIPO_API_KEY` is available.
 
 ## Tripo Step
 
@@ -71,6 +74,9 @@ When Tripo handoff is requested:
 - keep the upload tied to the generated reference image used in the conversation
 - use API upload, task creation, and task polling directly
 - report the final task status instead of stopping at `Image generated`
+- if the requested download format is `glb`, download the generated `glb` output directly
+- if the requested download format is `fbx`, `gltf`, `obj`, `stl`, or `usdz`, run a `convert_model` task after the generation task succeeds
+- if the conversion result is returned as a zip archive, download the zip and report that exact file path
 
 ## Prompt Wording
 
@@ -89,5 +95,6 @@ Report back with:
 - the selected or inferred style
 - whether example images were used
 - the reference image path
+- the requested download format
 - whether Tripo API handoff was completed in-session
 - any downloaded model paths when available

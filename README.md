@@ -20,6 +20,7 @@ It gives Codex a clear workflow for:
 - `assets/icon.svg`: plugin icon
 - `assets/soldier-helmet-logo.png`: plugin logo
 - `data/setup.json`: required setup values
+- `data/download-formats.json`: download format defaults and conversion rules
 - `data/tripo-api.json`: Tripo API workflow reference
 - `data/style-presets.json`: canonical style labels and defaults
 - `data/reference-rules.json`: image-generation constraints
@@ -91,6 +92,7 @@ After installation, use prompts such as:
 - `Create a low poly knight in a front-view T-pose on white, then send it to Tripo.`
 - `Generate every low poly asset needed for a soccer match.`
 - `Use these example images to define the style, then prepare the asset for Tripo.`
+- `Create a stylized horse for Tripo and download it as FBX.`
 
 ## Setup
 
@@ -134,6 +136,19 @@ The skill is designed to keep the workflow inside Codex:
 - continue automatically after the image is generated when the API key is available
 
 If `TRIPO_API_KEY` is missing, the plugin should stop before the Tripo step and ask for setup.
+
+## Download Format
+
+The plugin should support a download format choice for Tripo output.
+
+- default format: `glb`
+- additional API conversion formats: `fbx`, `gltf`, `obj`, `stl`, `usdz`
+
+Behavior:
+
+- if the user does not specify a format, download `glb`
+- if the user asks for another supported format, finish the generation task first, then run the Tripo `convert_model` task
+- if the API returns a zip for the converted format, download the zip and report that file path
 
 ## Data Bundle
 

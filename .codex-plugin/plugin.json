@@ -1,7 +1,7 @@
 {
   "name": "codex-3d-asset",
-  "version": "0.2.0",
-  "description": "Pure Codex plugin for shadowless white-background 3D asset references and direct Tripo API workflows.",
+  "version": "0.2.1",
+  "description": "Pure Codex plugin for shadowless white-background 3D asset references, direct Tripo API workflows, and selectable download formats.",
   "author": {
     "name": "Anis Ayari",
     "email": "anis.ayari.perso@gmail.com",
@@ -21,8 +21,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Codex 3D Asset",
-    "shortDescription": "Generate Tripo-ready reference images in Codex and continue through the Tripo API.",
-    "longDescription": "Instruction-only Codex plugin for 3D asset workflows. It resolves style, uses native image generation, enforces shadowless white-background references with no floor gradient or ground plane, applies front-view T-pose rules for characters, checks TRIPO_API_KEY before handoff, and uses the Tripo API directly instead of browser automation.",
+    "shortDescription": "Generate Tripo-ready reference images in Codex, use the Tripo API directly, and choose the download format.",
+    "longDescription": "Instruction-only Codex plugin for 3D asset workflows. It resolves style, uses native image generation, enforces shadowless white-background references with no floor gradient or ground plane, applies front-view T-pose rules for characters, checks TRIPO_API_KEY before handoff, uses the Tripo API directly instead of browser automation, and supports selectable output download formats with glb as the default.",
     "developerName": "Anis Ayari",
     "category": "Productivity",
     "capabilities": [
@@ -33,7 +33,7 @@
     "defaultPrompt": [
       "Create a low poly knight in a shadowless front-view T-pose on white.",
       "Generate every low poly asset needed for a soccer match and send each one to Tripo.",
-      "Use these references to define the style, then continue to the Tripo API."
+      "Use these references to define the style, then continue to the Tripo API and download as FBX."
     ],
     "brandColor": "#0ea5a4",
     "composerIcon": "./assets/soldier-helmet-logo.png",

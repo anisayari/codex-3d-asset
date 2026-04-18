@@ -1,0 +1,26 @@
+{
+  "defaultFormat": "glb",
+  "directGenerationFormat": {
+    "format": "glb",
+    "sourceFieldPriority": [
+      "output.pbr_model",
+      "output.model",
+      "result.pbr_model.url",
+      "result.model.url"
+    ]
+  },
+  "conversionFormats": [
+    "fbx",
+    "gltf",
+    "obj",
+    "stl",
+    "usdz"
+  ],
+  "conversionTaskType": "convert_model",
+  "notes": [
+    "Do not ask for a format when the user did not mention one. Default to glb.",
+    "Run convert_model only when the requested format is not glb.",
+    "The convert_model payload uses uppercase API values such as FBX, GLTF, OBJ, STL, and USDZ.",
+    "Some converted outputs may be delivered as zip archives."
+  ]
+}

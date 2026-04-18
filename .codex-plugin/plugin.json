@@ -1,6 +1,6 @@
 {
   "name": "codex-3d-asset",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Pure Codex plugin for shadowless white-background 3D asset references, direct Tripo API workflows, and selectable download formats.",
   "author": {
     "name": "Anis Ayari",

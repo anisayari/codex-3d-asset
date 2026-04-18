@@ -26,6 +26,7 @@ It gives Codex a clear workflow for:
 - `data/reference-rules.json`: image-generation constraints
 - `data/pack-templates/football-match-low-poly.json`: reusable pack template
 - `data/assets/`: bundled sample assets and textures
+- `docs/AGENTS.example.md`: persistent-preferences template
 
 ## Install
 
@@ -94,6 +95,30 @@ After installation, use prompts such as:
 - `Use these example images to define the style, then prepare the asset for Tripo.`
 - `Create a stylized horse for Tripo and download it as FBX.`
 
+## Persistent Preferences with AGENTS.md
+
+OpenAI's Codex best practices recommend using `AGENTS.md` to stop repeating the same instructions manually and to encode how you want Codex to work in a repository. OpenAI also documents that you can use a global file in `~/.codex/AGENTS.md` for personal defaults, plus repo-level and subdirectory-level files, with more specific files overriding broader ones.
+
+For this plugin, that is a good fit for preferences such as:
+
+- default visual style
+- default download format
+- preferred Tripo model version
+- default texture quality
+- face-limit defaults
+
+If you keep asking for the same style or format, put it in `AGENTS.md` instead of repeating it in every chat.
+
+Start from this template:
+
+- [AGENTS.example.md](./docs/AGENTS.example.md)
+
+Typical pattern:
+
+- `~/.codex/AGENTS.md` for your personal defaults
+- repository `AGENTS.md` for shared team defaults
+- nested `AGENTS.md` or `AGENTS.override.md` for local overrides
+
 ## Setup
 
 Tripo handoff requires `TRIPO_API_KEY`.
@@ -123,6 +148,8 @@ Use the subject in the question when possible, for example:
 
 `Which style should I use for the horse: low poly, highly detailed, photorealistic, stylized, toon, or voxel?`
 
+If `AGENTS.md` already defines a default style, the plugin should use it and skip the question.
+
 ## Tripo Handoff
 
 This repository stays plugin-only on purpose.
@@ -147,6 +174,7 @@ The plugin should support a download format choice for Tripo output.
 Behavior:
 
 - if the user does not specify a format, download `glb`
+- if `AGENTS.md` defines a default download format and the user did not override it, use that format
 - if the user asks for another supported format, finish the generation task first, then run the Tripo `convert_model` task
 - if the API returns a zip for the converted format, download the zip and report that file path
 

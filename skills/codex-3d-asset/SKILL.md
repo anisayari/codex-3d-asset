@@ -20,6 +20,19 @@ Use these files as the plugin's static data:
 - `../../data/reference-rules.json`
 - `../../data/pack-templates/football-match-low-poly.json`
 - `../../data/assets/`
+- `../../docs/AGENTS.example.md`
+
+## Preference Memory
+
+- Before asking repeated preference questions, check whether the current Codex instruction stack already defines defaults in `AGENTS.md`.
+- Prefer persistent defaults from `~/.codex/AGENTS.md` or the current repository `AGENTS.md` when they clearly specify:
+  - default visual style
+  - default download format
+  - preferred Tripo model version
+  - default texture quality or face limit
+- If an `AGENTS.md` preference conflicts with an explicit user request in the current conversation, the current conversation wins.
+- If `AGENTS.md` already gives a default style or default download format, do not ask again.
+- Suggest updating `AGENTS.md` only when the same preference keeps recurring across requests.
 
 ## Core Rules
 
@@ -35,6 +48,7 @@ Use these files as the plugin's static data:
 
 ## Style Resolution
 
+- If `AGENTS.md` defines a default style and the user did not override it, use that style.
 - If the user explicitly names a style, use it.
 - If the user provides example images, use them as the main style reference.
 - If neither style nor references are provided, ask exactly one short question in English and include the subject when known:
@@ -56,12 +70,13 @@ Use these files as the plugin's static data:
 1. Classify the request as `character` or `object`.
 2. Resolve the style from explicit text, example images, or the one short question above.
 3. Resolve the desired download format from `../../data/download-formats.json`.
-4. If the user does not specify a format, default to `glb` and continue without asking.
-5. If the user wants a Tripo handoff, check `TRIPO_API_KEY` before generating the image.
-6. If `TRIPO_API_KEY` is missing, stop immediately and give the setup instruction from `../../data/setup.json`.
-7. If the request is a pack, load the pack template and adapt it.
-8. Generate the reference image with Codex using the white-background no-shadow rules.
-9. Continue automatically to the Tripo API step in the same turn when `TRIPO_API_KEY` is available.
+4. If `AGENTS.md` defines a default download format and the user did not override it, use that format.
+5. If the user does not specify a format and no persistent preference exists, default to `glb` and continue without asking.
+6. If the user wants a Tripo handoff, check `TRIPO_API_KEY` before generating the image.
+7. If `TRIPO_API_KEY` is missing, stop immediately and give the setup instruction from `../../data/setup.json`.
+8. If the request is a pack, load the pack template and adapt it.
+9. Generate the reference image with Codex using the white-background no-shadow rules.
+10. Continue automatically to the Tripo API step in the same turn when `TRIPO_API_KEY` is available.
 
 ## Tripo Step
 

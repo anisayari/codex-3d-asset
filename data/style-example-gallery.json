@@ -1,5 +1,6 @@
 {
   "subject": "Ice Age saber-toothed tiger",
+  "languageRule": "Localize the style question to the user's dominant language. Keep the style choices themselves recognizable, but do not force the surrounding sentence to English unless the user is speaking English or asked for English.",
   "displayRule": "When asking the style question, show the bundled horizontal gallery image inline before the question so the user can choose visually at a glance.",
   "questionTemplate": "Which style should I use for the Ice Age saber-toothed tiger: low poly, highly detailed, photorealistic, stylized, toon, or voxel?",
   "examples": [

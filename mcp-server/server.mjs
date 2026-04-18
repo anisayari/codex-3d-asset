@@ -17,7 +17,7 @@ const ACTIVE_VIEWER_PORT = Number.parseInt(
   process.env.CODEX_3D_ASSET_ACTIVE_VIEWER_PORT || process.env.CODEX_3D_ASSET_VIEWER_PORT || "4174",
   10
 );
-const PLUGIN_VERSION = "0.5.2";
+const PLUGIN_VERSION = "0.5.3";
 const TRIPO_API_BASE_URL = "https://api.tripo3d.ai/v2/openapi";
 const WIDGET_URI = "ui://widget/asset-preview-v1.html";
 const WIDGET_HTML = readFileSync(

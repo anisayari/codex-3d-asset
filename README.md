@@ -6,7 +6,7 @@
 
 `codex-3d-asset` is a Codex plugin for image-to-3D workflows inside Codex.
 
-It generates clean 2D reference images, keeps the reference editable until approval, checks Tripo wallet credits before paid tasks when available, tells the user when Tripo generation has started with a best-effort wait estimate, downloads the requested format, and opens a local 3D preview widget in Codex.
+It generates clean 2D reference images, keeps the reference editable until approval, replies in the user's language, checks Tripo wallet credits before paid tasks when available, tells the user when Tripo generation has started with a best-effort wait estimate, downloads the requested format, and opens a local 3D preview widget in Codex.
 
 ## Menu
 
@@ -54,6 +54,8 @@ Supported styles:
 - `voxel`
 
 If the user does not specify a style and does not provide reference images, the plugin asks one short style question and can show the bundled gallery first.
+
+That question should follow the user's language automatically instead of being forced to English.
 
 <p align="center">
   <img src="./assets/style-examples/style-gallery.png" alt="Style Gallery" width="100%" />

@@ -1,5 +1,6 @@
 {
   "confirmBeforeTripoGeneration": true,
+  "languageRule": "All user-facing follow-up messages should use the user's dominant language from the current conversation. If the user switches language explicitly, follow the latest clear preference. Use English only when the user is speaking English or explicitly asked for English.",
   "confirmationPrompt": "The reference image is ready. Should I revise the image first or launch the Tripo 3D generation now?",
   "confirmationPromptWithCost": "The reference image is ready. Should I revise the image first or launch the Tripo 3D generation now? Estimated Tripo cost: <credit_estimate> credits<usd_suffix>.",
   "confirmationPromptWithBalanceOnly": "The reference image is ready. Should I revise the image first or launch the Tripo 3D generation now? Current wallet balance: <wallet_balance> credits.",

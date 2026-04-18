@@ -4,6 +4,7 @@
 
 - Default style: low_poly
 - Default Tripo download format: glb
+- Preferred reply language: French
 - Prefer Tripo model version: P1-20260311 for low_poly assets
 - Default texture quality: standard
 - Default face limit for low_poly assets: 3500

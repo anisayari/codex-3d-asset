@@ -10,6 +10,7 @@ For this plugin, that is a good fit for preferences such as:
 - default texture quality
 - face-limit defaults
 - optional Tripo credit estimates when you know them from your current workspace
+- optional preferred reply language when you want to force one
 
 If you keep asking for the same style or format, put it in `AGENTS.md` instead of repeating it in every chat.
 
@@ -34,6 +35,7 @@ Recommended shape for this plugin:
 - Default face limit for low_poly assets: 3500
 - Estimated Tripo image_to_model credits: [set from your current Tripo workspace if known]
 - Estimated Tripo convert_model credits: [set from your current Tripo workspace if known]
+- Preferred reply language: French
 - For characters, always use a front-view T-pose
 - For reference images, always use a seamless pure white background with no cast shadow, no contact shadow, and no ambient shadow
 ```

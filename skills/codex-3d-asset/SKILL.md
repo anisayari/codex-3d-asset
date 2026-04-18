@@ -45,6 +45,20 @@ Use these files as the plugin's static data:
 - If `AGENTS.md` includes Tripo credit estimates, use them in the final confirmation before spending credits.
 - Suggest updating `AGENTS.md` only when the same preference keeps recurring across requests.
 
+## Language Behavior
+
+- Mirror the user's dominant language from the current conversation for all user-facing replies in this workflow.
+- This applies to:
+  - the style question
+  - missing-key setup prompts
+  - wallet balance updates
+  - approval questions
+  - task-start wait messages
+  - final success or failure summaries
+- If the user switches language explicitly, follow the latest clear preference.
+- Use English only when the user is speaking English already or explicitly asks for English.
+- Do not force English for the style question, confirmation prompt, or wait estimate just because the bundled example text is written in English.
+
 ## Core Rules
 
 - Use Codex native image generation for reference images.
@@ -65,8 +79,10 @@ Use these files as the plugin's static data:
 - If `AGENTS.md` defines a default style and the user did not override it, use that style.
 - If the user explicitly names a style, use it.
 - If the user provides example images, use them as the main style reference.
-- If neither style nor references are provided, ask exactly one short question in English and include the subject when known:
+- If neither style nor references are provided, ask exactly one short question in the user's language and include the subject when known.
+- Keep the question short, for example in English:
   `Which style should I use for the horse: low poly, highly detailed, photorealistic, stylized, toon, or voxel?`
+- Localize that sentence when the user is speaking another language.
 - When asking that question in the Codex desktop app, show the bundled style example gallery first.
 - Prefer the labeled gallery sheet at `../../assets/style-examples/style-gallery.png`.
 - Prefer the single horizontal gallery sheet so the six styles are visible side by side in one image.
@@ -106,7 +122,7 @@ Use these files as the plugin's static data:
   - restate the requested output format
   - include the current wallet balance when it was verified successfully
   - tell the user they can still request an image revision before spending Tripo credits
-  - ask one short question that offers both paths:
+  - ask one short question in the user's language that offers both paths:
     `Should I revise this image first or launch the Tripo 3D generation now?`
 - If the user answers with `continue`, `launch it`, `go ahead`, `generate the 3D`, or similar right after that approval question, treat it as approval for the current reference image.
 - If the user answers with a subject change, style change, composition change, or quality change, treat it as a reference-image revision request instead of approval.
@@ -235,5 +251,5 @@ Report back with:
 When asking the style question, prefer this structure:
 
 1. Show the bundled gallery image inline.
-2. Ask the style question in English immediately after the gallery.
+2. Ask the style question in the user's language immediately after the gallery.
 3. Keep the wording short.

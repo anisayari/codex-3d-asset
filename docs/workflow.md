@@ -36,6 +36,7 @@ The skill is designed to keep the workflow inside Codex:
 
 - use native Codex image generation for the reference image
 - prefer the built-in Codex image tool (`imagegen` / Imagen) for that step
+- respond to the user in the user's language instead of forcing English prompts
 - continue the same turn after the image is generated instead of stopping on the image alone
 - use the current Codex tool environment for the next step
 - call the official Tripo API directly
@@ -53,6 +54,8 @@ If `TRIPO_API_KEY` is missing, the plugin should stop before the Tripo step and 
 Better fallback wording:
 
 `I can continue and do the full Tripo handoff if you paste your TRIPO_API_KEY here. If you do not have API access yet, use the official docs: https://platform.tripo3d.ai/docs/introduction and get your key here: https://platform.tripo3d.ai/api-keys`
+
+That wording should be localized to the user's language during the real conversation.
 
 Recommended confirmation prompt:
 

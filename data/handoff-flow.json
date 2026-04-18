@@ -1,0 +1,22 @@
+{
+  "confirmBeforeTripoGeneration": true,
+  "confirmationPrompt": "The reference image is ready. Do you want me to launch the Tripo 3D generation now?",
+  "skipConfirmationWhenExplicitlyRequested": true,
+  "postConfirmationBehavior": "continue immediately with the Tripo API in the same turn",
+  "localViewer": {
+    "enabled": true,
+    "autoOpenAfterDownload": true,
+    "defaultPort": 4173,
+    "entryPath": "/codex-3d-asset/viewer/index.html",
+    "queryParameter": "model",
+    "supportedPreviewFormats": [
+      "glb",
+      "gltf",
+      "fbx",
+      "obj",
+      "stl",
+      "usdz"
+    ],
+    "archiveBehavior": "extract first supported preview file from zip when possible"
+  }
+}

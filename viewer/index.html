@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Codex 3D Asset Viewer</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230f1117'/%3E%3Cpath d='M18 24c0-8 6-14 14-14s14 6 14 14v8l-4 8H22l-4-8v-8Z' fill='%2319b8b0'/%3E%3Cpath d='M20 42h24v6H20Z' fill='%23eef2ff'/%3E%3C/svg%3E"
+    />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.172.0/build/three.module.js"
+        }
+      }
+    </script>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0f1117;
+        --panel: #171a22;
+        --panel-2: #1f2430;
+        --text: #eef2ff;
+        --muted: #a6adbb;
+        --accent: #19b8b0;
+        --border: #2a3040;
+      }
+
+      * { box-sizing: border-box; }
+      html, body { height: 100%; margin: 0; }
+      body {
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      .layout {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        height: 100%;
+      }
+
+      .topbar {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(15, 17, 23, 0.96);
+      }
+
+      .title {
+        font-size: 14px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .controls {
+        display: flex;
+        gap: 8px;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .controls input {
+        flex: 1;
+        min-width: 0;
+        background: var(--panel);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 10px 12px;
+        font: inherit;
+      }
+
+      .controls button {
+        background: var(--accent);
+        color: #042624;
+        border: 0;
+        border-radius: 6px;
+        padding: 10px 14px;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .status {
+        color: var(--muted);
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      #viewer {
+        position: relative;
+        min-height: 0;
+      }
+
+      canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      .overlay {
+        position: absolute;
+        left: 16px;
+        bottom: 16px;
+        max-width: min(420px, calc(100% - 32px));
+        padding: 10px 12px;
+        background: rgba(23, 26, 34, 0.88);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 12px;
+        line-height: 1.45;
+        color: var(--muted);
+      }
+
+      .overlay strong {
+        color: var(--text);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <div class="topbar">
+        <div class="title">Codex 3D Asset Viewer</div>
+        <div class="controls">
+          <input id="modelPath" type="text" placeholder="Model URL or relative path" />
+          <button id="loadButton" type="button">Load</button>
+        </div>
+        <div id="status" class="status">Waiting for model</div>
+      </div>
+      <div id="viewer">
+        <div class="overlay">
+          <strong>Supported preview formats</strong><br />
+          GLB, GLTF, FBX, OBJ, STL, USDZ<br /><br />
+          Tip: pass <code>?model=/path/to/file.glb</code> in the viewer URL.
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import * as THREE from "https://unpkg.com/three@0.172.0/build/three.module.js";
+      import { OrbitControls } from "https://unpkg.com/three@0.172.0/examples/jsm/controls/OrbitControls.js";
+      import { RoomEnvironment } from "https://unpkg.com/three@0.172.0/examples/jsm/environments/RoomEnvironment.js";
+      import { GLTFLoader } from "https://unpkg.com/three@0.172.0/examples/jsm/loaders/GLTFLoader.js";
+      import { FBXLoader } from "https://unpkg.com/three@0.172.0/examples/jsm/loaders/FBXLoader.js";
+      import { OBJLoader } from "https://unpkg.com/three@0.172.0/examples/jsm/loaders/OBJLoader.js";
+      import { STLLoader } from "https://unpkg.com/three@0.172.0/examples/jsm/loaders/STLLoader.js";
+      import { USDZLoader } from "https://unpkg.com/three@0.172.0/examples/jsm/loaders/USDZLoader.js";
+
+      const container = document.getElementById("viewer");
+      const statusEl = document.getElementById("status");
+      const inputEl = document.getElementById("modelPath");
+      const buttonEl = document.getElementById("loadButton");
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.0;
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      container.appendChild(renderer.domElement);
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0f1117);
+
+      const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 500);
+      camera.position.set(2.4, 1.8, 3.2);
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.target.set(0, 0.8, 0);
+
+      const pmremGenerator = new THREE.PMREMGenerator(renderer);
+      scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+
+      scene.add(new THREE.HemisphereLight(0xffffff, 0x1c2436, 1.1));
+      const keyLight = new THREE.DirectionalLight(0xffffff, 2.6);
+      keyLight.position.set(5, 8, 6);
+      scene.add(keyLight);
+
+      const fillLight = new THREE.DirectionalLight(0xbdd7ff, 1.2);
+      fillLight.position.set(-5, 4, -6);
+      scene.add(fillLight);
+
+      const grid = new THREE.GridHelper(10, 20, 0x2b3447, 0x202734);
+      grid.position.y = -0.0001;
+      scene.add(grid);
+
+      let currentRoot = null;
+
+      function setStatus(message) {
+        statusEl.textContent = message;
+      }
+
+      function resize() {
+        const rect = container.getBoundingClientRect();
+        renderer.setSize(rect.width, rect.height, false);
+        camera.aspect = rect.width / Math.max(rect.height, 1);
+        camera.updateProjectionMatrix();
+      }
+
+      window.addEventListener("resize", resize);
+      resize();
+
+      function clearModel() {
+        if (!currentRoot) return;
+        scene.remove(currentRoot);
+        currentRoot.traverse((node) => {
+          if (node.geometry) node.geometry.dispose?.();
+          if (node.material) {
+            const materials = Array.isArray(node.material) ? node.material : [node.material];
+            for (const material of materials) material.dispose?.();
+          }
+        });
+        currentRoot = null;
+      }
+
+      function frameObject(object3d) {
+        const box = new THREE.Box3().setFromObject(object3d);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+        const maxDim = Math.max(size.x, size.y, size.z, 0.01);
+        const distance = maxDim * 1.9;
+
+        controls.target.copy(center);
+        camera.position.set(center.x + distance, center.y + distance * 0.55, center.z + distance);
+        camera.near = Math.max(maxDim / 100, 0.01);
+        camera.far = Math.max(maxDim * 40, 100);
+        camera.updateProjectionMatrix();
+        controls.update();
+      }
+
+      function wrapGeometry(geometry, material) {
+        const mesh = new THREE.Mesh(
+          geometry,
+          material || new THREE.MeshStandardMaterial({ color: 0xc7d2fe, metalness: 0.15, roughness: 0.75 })
+        );
+        const group = new THREE.Group();
+        group.add(mesh);
+        return group;
+      }
+
+      async function loadModel(path) {
+        clearModel();
+        setStatus(`Loading ${path}`);
+
+        const cleanPath = path.trim();
+        const lower = cleanPath.toLowerCase();
+
+        try {
+          let root;
+
+          if (lower.endsWith(".glb") || lower.endsWith(".gltf")) {
+            const gltf = await new GLTFLoader().loadAsync(cleanPath);
+            root = gltf.scene;
+          } else if (lower.endsWith(".fbx")) {
+            root = await new FBXLoader().loadAsync(cleanPath);
+          } else if (lower.endsWith(".obj")) {
+            root = await new OBJLoader().loadAsync(cleanPath);
+          } else if (lower.endsWith(".stl")) {
+            const geometry = await new STLLoader().loadAsync(cleanPath);
+            root = wrapGeometry(geometry);
+          } else if (lower.endsWith(".usdz")) {
+            root = await new USDZLoader().loadAsync(cleanPath);
+          } else {
+            throw new Error("Unsupported file format for preview.");
+          }
+
+          currentRoot = root;
+          scene.add(root);
+          frameObject(root);
+          setStatus(`Loaded ${cleanPath}`);
+        } catch (error) {
+          console.error(error);
+          setStatus(`Failed to load model: ${error.message}`);
+        }
+      }
+
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      const params = new URLSearchParams(window.location.search);
+      const initialModel = params.get("model") || "";
+      if (initialModel) {
+        inputEl.value = initialModel;
+        loadModel(initialModel);
+      } else {
+        setStatus("Waiting for model");
+      }
+
+      buttonEl.addEventListener("click", () => {
+        const value = inputEl.value.trim();
+        if (!value) {
+          setStatus("Enter a model path or URL");
+          return;
+        }
+        const next = new URL(window.location.href);
+        next.searchParams.set("model", value);
+        window.history.replaceState({}, "", next);
+        loadModel(value);
+      });
+    </script>
+  </body>
+</html>

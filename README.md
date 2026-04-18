@@ -12,6 +12,8 @@ It gives Codex a clear workflow for:
 - resolving style from explicit instructions or visual references
 - preparing asset packs from reusable templates
 - handing the result off to Tripo through the official API inside Codex
+- asking for explicit user confirmation before spending Tripo credits when needed
+- opening a localhost 3D viewer automatically after a previewable model is downloaded
 
 ## Plugin Contents
 
@@ -24,9 +26,11 @@ It gives Codex a clear workflow for:
 - `data/tripo-api.json`: Tripo API workflow reference
 - `data/style-presets.json`: canonical style labels and defaults
 - `data/reference-rules.json`: image-generation constraints
+- `data/handoff-flow.json`: Tripo confirmation and preview flow
 - `data/pack-templates/football-match-low-poly.json`: reusable pack template
 - `data/assets/`: bundled sample assets and textures
 - `docs/AGENTS.example.md`: persistent-preferences template
+- `viewer/index.html`: local 3D preview page
 
 ## Install
 
@@ -190,9 +194,14 @@ The skill is designed to keep the workflow inside Codex:
 - use the current Codex tool environment for the next step
 - call the official Tripo API directly
 - avoid Playwright and browser automation for Tripo
-- continue automatically after the image is generated when the API key is available
+- ask for confirmation before launching Tripo 3D generation when the reference image is ready
+- continue directly to the Tripo API after the user confirms
 
 If `TRIPO_API_KEY` is missing, the plugin should stop before the Tripo step and ask for setup.
+
+Recommended confirmation prompt:
+
+`The reference image is ready. Do you want me to launch the Tripo 3D generation now?`
 
 ## Download Format
 
@@ -207,6 +216,30 @@ Behavior:
 - if `AGENTS.md` defines a default download format and the user did not override it, use that format
 - if the user asks for another supported format, finish the generation task first, then run the Tripo `convert_model` task
 - if the API returns a zip for the converted format, download the zip and report that file path
+
+## Local 3D Preview
+
+After a model is downloaded, the plugin should launch a localhost preview page and open the generated asset automatically.
+
+The bundled viewer lives here:
+
+- `viewer/index.html`
+
+Recommended flow:
+
+- start a local server rooted high enough to serve both the viewer and the generated model file
+- open the viewer with `?model=/relative/path/to/model.glb`
+- use the viewer automatically after the Tripo download when the artifact is previewable
+- if the conversion output is a zip, extract it first and preview the first supported asset inside
+
+The local viewer is intended for:
+
+- `glb`
+- `gltf`
+- `fbx`
+- `obj`
+- `stl`
+- `usdz`
 
 ## Data Bundle
 

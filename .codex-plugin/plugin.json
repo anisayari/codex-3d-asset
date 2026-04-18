@@ -1,7 +1,7 @@
 {
   "name": "codex-3d-asset",
-  "version": "0.2.2",
-  "description": "Pure Codex plugin for shadowless white-background 3D asset references, direct Tripo API workflows, and selectable download formats.",
+  "version": "0.3.0",
+  "description": "Pure Codex plugin for shadowless white-background 3D asset references, confirmable direct Tripo API workflows, local 3D preview, and selectable download formats.",
   "author": {
     "name": "Anis Ayari",
     "email": "anis.ayari.perso@gmail.com",
@@ -21,8 +21,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Codex 3D Asset",
-    "shortDescription": "Generate Tripo-ready reference images in Codex, use the Tripo API directly, and choose the download format.",
-    "longDescription": "Instruction-only Codex plugin for 3D asset workflows. It resolves style, uses native image generation, enforces shadowless white-background references with no floor gradient or ground plane, applies front-view T-pose rules for characters, checks TRIPO_API_KEY before handoff, uses the Tripo API directly instead of browser automation, and supports selectable output download formats with glb as the default.",
+    "shortDescription": "Generate Tripo-ready reference images in Codex, confirm the handoff, preview locally, and choose the download format.",
+    "longDescription": "Instruction-only Codex plugin for 3D asset workflows. It resolves style, uses native image generation, enforces shadowless white-background references with no floor gradient or ground plane, applies front-view T-pose rules for characters, checks TRIPO_API_KEY before handoff, asks for confirmation before spending Tripo credits unless the user explicitly wants immediate continuation, uses the Tripo API directly instead of browser automation, opens a local viewer after previewable downloads, and supports selectable output download formats with glb as the default.",
     "developerName": "Anis Ayari",
     "category": "Productivity",
     "capabilities": [

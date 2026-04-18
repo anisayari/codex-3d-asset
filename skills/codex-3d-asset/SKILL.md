@@ -15,12 +15,14 @@ Use these files as the plugin's static data:
 
 - `../../data/setup.json`
 - `../../data/download-formats.json`
+- `../../data/handoff-flow.json`
 - `../../data/tripo-api.json`
 - `../../data/style-presets.json`
 - `../../data/reference-rules.json`
 - `../../data/pack-templates/football-match-low-poly.json`
 - `../../data/assets/`
 - `../../docs/AGENTS.example.md`
+- `../../viewer/index.html`
 
 ## Preference Memory
 
@@ -57,6 +59,15 @@ Use these files as the plugin's static data:
   - default to `low_poly` for game asset packs
   - default to `stylized` for one-off characters or props
 - Once the user answers the style question, continue automatically. Do not stop after the image is generated. Do not wait for another confirmation unless a required secret is missing.
+- Before spending Tripo credits, show the generated reference image and ask for one short confirmation unless the user explicitly said to continue without confirmation.
+
+## Handoff Discipline
+
+- Do not stop on a bare `Image generated` result when the request includes Tripo handoff.
+- If confirmation is required, your next assistant message after the image must be the confirmation question from `../../data/handoff-flow.json`.
+- If the user confirms, continue with the Tripo API immediately in the same turn.
+- Do not switch to Playwright, browser automation, or the Tripo website for the generation step.
+- When the model download finishes, launch the local viewer automatically when preview is possible.
 
 ## Asset Packs
 
@@ -76,7 +87,9 @@ Use these files as the plugin's static data:
 7. If `TRIPO_API_KEY` is missing, stop immediately and give the setup instruction from `../../data/setup.json`.
 8. If the request is a pack, load the pack template and adapt it.
 9. Generate the reference image with Codex using the white-background no-shadow rules.
-10. Continue automatically to the Tripo API step in the same turn when `TRIPO_API_KEY` is available.
+10. If the user asked for Tripo handoff, ask for a short confirmation after the reference image is ready:
+    `The reference image is ready. Do you want me to launch the Tripo 3D generation now?`
+11. If the user confirms, continue to the Tripo API step in the same turn.
 
 ## Tripo Step
 
@@ -92,6 +105,20 @@ When Tripo handoff is requested:
 - if the requested download format is `glb`, download the generated `glb` output directly
 - if the requested download format is `fbx`, `gltf`, `obj`, `stl`, or `usdz`, run a `convert_model` task after the generation task succeeds
 - if the conversion result is returned as a zip archive, download the zip and report that exact file path
+- if the conversion result is returned as a zip archive and the user wants preview, extract it and preview the first supported 3D asset inside the archive
+- after the file is downloaded, move directly to local preview when the format is previewable
+
+## Local Viewer
+
+After a model file is available:
+
+- use `../../viewer/index.html` as the local viewer entry point
+- start a localhost server rooted high enough to serve both the viewer and the generated model file
+- open the viewer with a `model` query parameter pointing to the generated asset
+- if a supported preview file exists, open the viewer automatically after download
+- support preview for `glb`, `gltf`, `fbx`, `obj`, `stl`, and `usdz`
+- if the file is not directly previewable, report the download path and explain why preview was skipped
+- keep the viewer step separate from the Tripo generation step; the viewer is only for the downloaded local artifact
 
 ## Prompt Wording
 
@@ -112,4 +139,5 @@ Report back with:
 - the reference image path
 - the requested download format
 - whether Tripo API handoff was completed in-session
+- the localhost viewer URL when a preview was launched
 - any downloaded model paths when available

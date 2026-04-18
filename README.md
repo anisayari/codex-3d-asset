@@ -1,5 +1,9 @@
 # Codex 3D Asset
 
+<p align="center">
+  <img src="./assets/readme-header.png" alt="Codex 3D Asset header" width="100%" />
+</p>
+
 `codex-3d-asset` is a Codex plugin with a local MCP preview widget and automatic runtime bootstrap.
 
 It gives Codex a clear workflow for:
@@ -23,6 +27,7 @@ It gives Codex a clear workflow for:
 - `skills/codex-3d-asset/SKILL.md`: plugin workflow and operating rules
 - `assets/icon.svg`: plugin icon
 - `assets/soldier-helmet-logo.png`: plugin logo
+- `assets/readme-header.png`: README banner image
 - `.mcp.json`: local MCP server entrypoint for the preview widget
 - `package.json`: local widget server dependencies and scripts
 - `data/setup.json`: required setup values
@@ -246,7 +251,9 @@ If the user does not specify a style and does not provide reference images, the 
 
 The plugin can also show a bundled visual style chooser before asking.
 
-![Style Gallery](./assets/style-examples/style-gallery.png)
+<p align="center">
+  <img src="./assets/style-examples/style-gallery.png" alt="Style Gallery" width="100%" />
+</p>
 
 Use the subject in the question when possible, for example:
 

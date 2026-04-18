@@ -14,6 +14,8 @@
 - When the reference image is ready, ask me once whether to revise the image or launch Tripo 3D now
 - When available, include my current Tripo wallet balance in that approval message
 - If I answer `continue` right after that approval message, treat it as approval for the current reference image
+- Once Tripo starts, tell me the estimated wait time before you keep polling
+- Treat that wait time as a best-effort estimate unless the current official API docs expose a verified exact ETA field
 
 ## Optional project-specific overrides
 

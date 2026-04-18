@@ -6,7 +6,7 @@
 
 `codex-3d-asset` is a Codex plugin for image-to-3D workflows inside Codex.
 
-It generates clean 2D reference images, keeps the reference editable until approval, checks Tripo wallet credits before paid tasks when available, hands off to the Tripo API, downloads the requested format, and opens a local 3D preview widget in Codex.
+It generates clean 2D reference images, keeps the reference editable until approval, checks Tripo wallet credits before paid tasks when available, tells the user when Tripo generation has started with a best-effort wait estimate, downloads the requested format, and opens a local 3D preview widget in Codex.
 
 ## Menu
 
@@ -26,7 +26,7 @@ flowchart LR
   C --> D{"User approves the 2D reference?"}
   D -->|No| E["Revise the current image inside Codex"]
   E --> D
-  D -->|Yes| F["Tripo 3D API generation"]
+  D -->|Yes| F["Tripo 3D API generation starts and Codex reports the wait estimate"]
   F --> G["Download the selected 3D format"]
   G --> H["Open the local 3D preview in Codex"]
 ```
@@ -96,6 +96,7 @@ The plugin bootstrap automatically:
 - prepares `outputs/`
 - writes `.codex-runtime/viewer.json`
 - keeps the post-image flow going instead of stopping on the generated image alone
+- keeps the post-task flow explicit by reporting when Tripo generation has started and what wait time to expect
 
 ## Documentation
 

@@ -114,6 +114,12 @@ Use these files as the plugin's static data:
   - the user can paste the key in chat now
   - the user can ask Codex to configure it for the current session
 - When the key is missing and you mention setup, include both the Tripo API docs link and the direct API key page from `../../data/setup.json`.
+- Once the Tripo task is created, do not silently poll in the background. Tell the user immediately that the 3D generation started, give a best-effort wait estimate, and then continue polling.
+- When the current official Tripo docs do not expose a verified exact ETA field, say that clearly and frame the wait time as an estimate, not as a guaranteed API ETA.
+- Use the task timing guidance in `../../data/tripo-api.json`:
+  - standard single-image image-to-model: usually in seconds
+  - official public Tripo messaging also uses a 10-20 second example for image-to-3D in its Blender tutorial
+  - multi-view, higher-detail, or follow-up conversion steps can take longer, so do not overpromise the fastest estimate
 
 ## Asset Packs
 
@@ -149,6 +155,7 @@ Use these files as the plugin's static data:
     - include the wallet balance when it was retrieved successfully
     - if no reliable estimate exists, say so explicitly and do not invent one
 16. If the user confirms, continue to the Tripo API step in the same turn.
+17. As soon as the Tripo task id exists, tell the user that the task started and give the best-effort wait estimate before continuing to poll.
 
 ## Tripo Step
 
@@ -167,6 +174,9 @@ When Tripo handoff is requested:
 - if the exact per-task credit amount is not verified from the current official docs, say that clearly instead of inventing a number
 - keep the upload tied to the generated reference image used in the conversation
 - use API upload, task creation, and task polling directly
+- right after task creation, report that the task started and include the best-effort wait estimate
+- include the task id when it is available
+- if the current official docs do not expose a verified ETA field, say so explicitly and present the wait time as an estimate only
 - report the final task status instead of stopping at `Image generated`
 - when local preview will be needed, download previewable artifacts inside `../../outputs/<asset-slug>/`
 - if the requested download format is `glb`, download the generated `glb` output directly
@@ -216,6 +226,7 @@ Report back with:
 - whether the user requested any image revisions before the 3D handoff
 - the requested download format
 - the disclosed Tripo credit estimate or the reason no exact estimate was available
+- the wait estimate you gave when the Tripo task started and whether it was best-effort or verified
 - whether Tripo API handoff was completed in-session
 - the downloaded output path under `outputs/` when preview was prepared
 - the localhost viewer URL when a preview was launched

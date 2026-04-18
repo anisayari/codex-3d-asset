@@ -8,12 +8,24 @@
   "skipConfirmationWhenExplicitlyRequested": true,
   "postConfirmationBehavior": "continue immediately with the Tripo API in the same turn",
   "postImageGenerationBehavior": "do not stop on the generated image alone; continue in the same turn with the next required step",
+  "postTaskStartBehavior": "do not silently poll after the Tripo task starts; tell the user that generation has started and include a best-effort wait estimate before continuing to poll",
   "postImageChecklist": [
     "briefly restate the selected style and requested download format",
     "tell the user that they can still request a reference-image revision before spending Tripo credits",
     "include the current wallet balance when it was verified successfully",
     "ask one short revise-or-generate question"
   ],
+  "postTaskStartChecklist": [
+    "say clearly that the Tripo task has started",
+    "include the task id when it is available",
+    "include a best-effort wait estimate",
+    "say that the estimate is not a guaranteed API ETA when the current official docs do not expose one",
+    "continue polling and report the final task status in the same turn"
+  ],
+  "taskStartedPrompt": "Tripo 3D generation started. I am polling the task now.",
+  "taskStartedPromptWithEstimate": "Tripo 3D generation started. Estimated wait: <wait_estimate>. I am polling the task now.",
+  "taskStartedPromptWithTaskId": "Tripo 3D generation started. Task id: <task_id>. Estimated wait: <wait_estimate>. I am polling the task now.",
+  "taskStartedPromptWhenExactEtaUnknown": "Tripo 3D generation started. Estimated wait: <wait_estimate>. The current official Tripo API docs I could verify do not expose an exact ETA field, so this remains a best-effort estimate while I poll the task.",
   "requiredNextStepAfterImage": [
     "ask for image revision approval when the reference still needs user approval",
     "run the wallet check before any paid Tripo task when handoff was requested",

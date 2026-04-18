@@ -44,6 +44,7 @@ The skill is designed to keep the workflow inside Codex:
 - ask for confirmation before launching Tripo 3D generation when the reference image is ready
 - continue responding after the image tool call instead of stopping on the generated image alone
 - continue directly to the Tripo API after the user confirms
+- once the Tripo task starts, tell the user immediately and give a best-effort wait estimate before continuing to poll
 - prefer the local `show_3d_asset_widget` MCP tool for preview
 - fall back to the local preview URL only if the widget tool is unavailable
 
@@ -60,12 +61,21 @@ Recommended confirmation prompt:
 - when no reliable exact estimate exists from the current official docs or workspace:
   `The reference image is ready. Do you want me to launch the Tripo 3D generation now? I do not have a verified exact per-task credit amount from the current official Tripo docs, so I will only proceed after your approval.`
 
+Recommended task-start wording:
+
+- for a standard image-to-model path:
+  `Tripo 3D generation started. Estimated wait: usually seconds for a standard single-image task. The current official Tripo API docs I could verify do not expose an exact ETA field, so this remains a best-effort estimate while I poll the task.`
+- for a higher-detail, multi-view, or follow-up conversion path:
+  `Tripo 3D generation started. Estimated wait: longer than the default single-image path because this request needs extra processing. The current official Tripo API docs I could verify do not expose an exact ETA field, so this remains a best-effort estimate while I poll the task.`
+
 I checked current official Tripo sources and verified two stable billing facts:
 
 - new API keys start with 2,000 free credits
 - additional API credits are priced at $0.01 each
 
 I did not find a verified official per-task credit table in the currently accessible official sources, so the plugin should not invent an exact credit number when that information is unavailable.
+
+I also did not find a verified exact API ETA field in the currently accessible official docs, so the plugin should not present a wait time as an exact server ETA. It should give a best-effort estimate instead.
 
 When the Tripo wallet endpoint is available, the plugin should:
 

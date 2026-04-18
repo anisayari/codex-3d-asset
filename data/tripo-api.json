@@ -6,6 +6,15 @@
   },
   "docsUrl": "https://platform.tripo3d.ai/docs/introduction",
   "apiKeysUrl": "https://platform.tripo3d.ai/api-keys",
+  "taskTimingGuidance": {
+    "exactApiEtaFieldVerified": false,
+    "bestEffortRule": "The current official Tripo API docs and accessible public docs do not expose a verified exact ETA field for task polling, so any wait time message must be framed as an estimate, not as a guaranteed API ETA.",
+    "imageToModelDefaultEstimate": "usually in seconds for a standard single-image image_to_model task",
+    "imageToModelFastClaim": "Official Tripo sources describe image-to-3D as running in seconds, and an official Tripo Blender tutorial says to expect about 10-20 seconds for image-to-3D generation in its example flow.",
+    "higherDetailOrMultiViewRule": "If the request uses multiple views, extra detail, or a follow-up enhancement/conversion flow, say that it can take longer than the default single-image path and do not promise the 10-20 second example.",
+    "conversionRule": "For convert_model follow-up tasks, say that conversion usually starts after the generation task succeeds and may add extra waiting time on top of the initial generation.",
+    "startedMessageRule": "Once the Tripo task is created, tell the user immediately that generation has started, include the task id when available, give the best-effort wait estimate, and continue polling in the same turn."
+  },
   "workflow": [
     {
       "name": "getWalletBalance",
@@ -68,6 +77,8 @@
     "If the key is missing, ask the user to paste TRIPO_API_KEY in chat or configure it in the environment, and include both the official docs link and the direct API key page.",
     "If the user provides a valid tsk_ key in chat, continue the current workflow without asking them to repeat the original request.",
     "Continue automatically after image generation when the key is present.",
+    "After a Tripo task starts, tell the user that generation has started and provide a best-effort wait estimate instead of silently polling.",
+    "Do not present a wait estimate as a guaranteed API ETA unless a verified ETA field exists in the current official docs.",
     "Do not end the assistant turn on a bare generated image. After image generation, either continue to the wallet check, ask for image revision approval, or continue to the Tripo API step.",
     "GLB is the default direct download from generation output.",
     "FBX, GLTF, OBJ, STL, and USDZ use convert_model after generation succeeds.",

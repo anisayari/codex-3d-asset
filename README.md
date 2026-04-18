@@ -21,6 +21,63 @@ It gives Codex a clear workflow for:
 - starting a plugin-scoped local viewer server automatically
 - opening a local 3D preview widget in Codex after a previewable model is downloaded
 
+## Workflow
+
+```mermaid
+flowchart LR
+  A["User query"] --> B["Codex plugin resolves subject, style, and references"]
+  B --> C["2D image generation inside Codex"]
+  C --> D{"User approves the 2D reference?"}
+  D -->|No| E["Revise the current image inside Codex"]
+  E --> D
+  D -->|Yes| F["Tripo 3D API generation"]
+  F --> G["Download the selected 3D format"]
+  G --> H["Open the local 3D preview in Codex"]
+```
+
+## TODO
+
+Possible next improvements:
+
+- add pluggable 3D generation backends beyond Tripo
+- support hosted providers such as Replicate and FAL
+- support local 3D generation pipelines when the user wants an offline or self-hosted path
+- route requests by speed, cost, style, or output quality
+- let `AGENTS.md` define a preferred 3D backend and fallback order
+
+## Style Handling
+
+The plugin supports these styles:
+
+- `low_poly`
+- `highly_detailed`
+- `photorealistic`
+- `stylized`
+- `toon`
+- `voxel`
+
+If the user does not specify a style and does not provide reference images, the plugin asks one short question in English before generating the reference.
+
+The plugin can also show a bundled visual style chooser before asking.
+
+<p align="center">
+  <img src="./assets/style-examples/style-gallery.png" alt="Style Gallery" width="100%" />
+</p>
+
+Use the subject in the question when possible, for example:
+
+`Which style should I use for the horse: low poly, highly detailed, photorealistic, stylized, toon, or voxel?`
+
+If `AGENTS.md` already defines a default style, the plugin should use it and skip the question.
+
+Preferred behavior in Codex:
+
+- show the bundled style gallery image first
+- use the single combined gallery image so the examples appear side by side in one shot
+- keep each example labeled directly on the image
+- ask the style question right after the gallery
+- if the user asks for closer inspection, show the individual style images too
+
 ## Plugin Contents
 
 - `.codex-plugin/plugin.json`: Codex plugin manifest
@@ -235,39 +292,6 @@ Typical examples:
 - `Use a more stylized low poly look`
 
 The plugin should not spend Tripo credits until the approved reference image is ready.
-
-## Style Handling
-
-The plugin supports these styles:
-
-- `low_poly`
-- `highly_detailed`
-- `photorealistic`
-- `stylized`
-- `toon`
-- `voxel`
-
-If the user does not specify a style and does not provide reference images, the plugin asks one short question in English before generating the reference.
-
-The plugin can also show a bundled visual style chooser before asking.
-
-<p align="center">
-  <img src="./assets/style-examples/style-gallery.png" alt="Style Gallery" width="100%" />
-</p>
-
-Use the subject in the question when possible, for example:
-
-`Which style should I use for the horse: low poly, highly detailed, photorealistic, stylized, toon, or voxel?`
-
-If `AGENTS.md` already defines a default style, the plugin should use it and skip the question.
-
-Preferred behavior in Codex:
-
-- show the bundled style gallery image first
-- use the single combined gallery image so the examples appear side by side in one shot
-- keep each example labeled directly on the image
-- ask the style question right after the gallery
-- if the user asks for closer inspection, show the individual style images too
 
 ## Tripo Handoff
 

@@ -13,7 +13,7 @@ It gives Codex a clear workflow for:
 - preparing asset packs from reusable templates
 - handing the result off to Tripo through the official API inside Codex
 - asking for explicit user confirmation before spending Tripo credits when needed
-- opening a localhost 3D viewer automatically after a previewable model is downloaded
+- returning a localhost 3D viewer link in Codex after a previewable model is downloaded
 
 ## Plugin Contents
 
@@ -196,6 +196,7 @@ The skill is designed to keep the workflow inside Codex:
 - avoid Playwright and browser automation for Tripo
 - ask for confirmation before launching Tripo 3D generation when the reference image is ready
 - continue directly to the Tripo API after the user confirms
+- return the local preview URL in the Codex response instead of trying to drive a browser for preview
 
 If `TRIPO_API_KEY` is missing, the plugin should stop before the Tripo step and ask for setup.
 
@@ -219,7 +220,7 @@ Behavior:
 
 ## Local 3D Preview
 
-After a model is downloaded, the plugin should launch a localhost preview page and open the generated asset automatically.
+After a model is downloaded, the plugin should prepare a localhost preview page URL and return it in Codex.
 
 The bundled viewer lives here:
 
@@ -228,9 +229,14 @@ The bundled viewer lives here:
 Recommended flow:
 
 - start a local server rooted high enough to serve both the viewer and the generated model file
-- open the viewer with `?model=/relative/path/to/model.glb`
-- use the viewer automatically after the Tripo download when the artifact is previewable
+- build the viewer URL with `?model=/relative/path/to/model.glb`
+- return that localhost URL as a Markdown link in the Codex response when the artifact is previewable
 - if the conversion output is a zip, extract it first and preview the first supported asset inside
+
+Current practical constraint:
+
+- in the plugin surface I could validate here, I do not see a dedicated Codex plugin API for force-opening a live localhost webview in the side panel
+- the safe plugin behavior is therefore to return the ready-to-open localhost viewer link in the Codex thread and avoid Playwright entirely for preview
 
 The local viewer is intended for:
 

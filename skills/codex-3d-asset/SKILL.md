@@ -67,7 +67,8 @@ Use these files as the plugin's static data:
 - If confirmation is required, your next assistant message after the image must be the confirmation question from `../../data/handoff-flow.json`.
 - If the user confirms, continue with the Tripo API immediately in the same turn.
 - Do not switch to Playwright, browser automation, or the Tripo website for the generation step.
-- When the model download finishes, launch the local viewer automatically when preview is possible.
+- Do not use Playwright or browser automation for the preview step either.
+- When the model download finishes, prepare the local viewer URL and return it in the Codex response as a Markdown link when preview is possible.
 
 ## Asset Packs
 
@@ -106,7 +107,7 @@ When Tripo handoff is requested:
 - if the requested download format is `fbx`, `gltf`, `obj`, `stl`, or `usdz`, run a `convert_model` task after the generation task succeeds
 - if the conversion result is returned as a zip archive, download the zip and report that exact file path
 - if the conversion result is returned as a zip archive and the user wants preview, extract it and preview the first supported 3D asset inside the archive
-- after the file is downloaded, move directly to local preview when the format is previewable
+- after the file is downloaded, build the local preview URL when the format is previewable and return it directly in the response
 
 ## Local Viewer
 
@@ -114,11 +115,12 @@ After a model file is available:
 
 - use `../../viewer/index.html` as the local viewer entry point
 - start a localhost server rooted high enough to serve both the viewer and the generated model file
-- open the viewer with a `model` query parameter pointing to the generated asset
-- if a supported preview file exists, open the viewer automatically after download
+- build the viewer URL with a `model` query parameter pointing to the generated asset
+- if a supported preview file exists, return that localhost viewer URL as a Markdown link in the Codex response
 - support preview for `glb`, `gltf`, `fbx`, `obj`, `stl`, and `usdz`
 - if the file is not directly previewable, report the download path and explain why preview was skipped
 - keep the viewer step separate from the Tripo generation step; the viewer is only for the downloaded local artifact
+- do not attempt to force-open a browser or a side panel through Playwright for this step
 
 ## Prompt Wording
 

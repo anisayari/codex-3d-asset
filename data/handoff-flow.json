@@ -5,7 +5,8 @@
   "postConfirmationBehavior": "continue immediately with the Tripo API in the same turn",
   "localViewer": {
     "enabled": true,
-    "autoOpenAfterDownload": true,
+    "reportViewerUrlInCodexResponse": true,
+    "doNotUsePlaywrightForPreview": true,
     "defaultPort": 4173,
     "entryPath": "/codex-3d-asset/viewer/index.html",
     "queryParameter": "model",

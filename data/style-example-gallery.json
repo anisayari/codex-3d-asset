@@ -1,6 +1,6 @@
 {
   "subject": "Ice Age saber-toothed tiger",
-  "displayRule": "When asking the style question, show these example images inline before the question so the user can choose visually.",
+  "displayRule": "When asking the style question, show the bundled horizontal gallery image inline before the question so the user can choose visually at a glance.",
   "questionTemplate": "Which style should I use for the Ice Age saber-toothed tiger: low poly, highly detailed, photorealistic, stylized, toon, or voxel?",
   "examples": [
     {

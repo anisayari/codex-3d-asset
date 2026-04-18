@@ -48,6 +48,7 @@ Use these files as the plugin's static data:
 ## Core Rules
 
 - Use Codex native image generation for reference images.
+- Prefer the built-in Codex image tool (`imagegen` / Imagen) for those reference images.
 - Generate exactly one isolated subject per image.
 - Use a seamless pure white background.
 - Do not add cast shadow, contact shadow, or ambient shadow.
@@ -66,12 +67,14 @@ Use these files as the plugin's static data:
   `Which style should I use for the horse: low poly, highly detailed, photorealistic, stylized, toon, or voxel?`
 - When asking that question in the Codex desktop app, show the bundled style example gallery first.
 - Prefer the labeled gallery sheet at `../../assets/style-examples/style-gallery.png`.
+- Prefer the single horizontal gallery sheet so the six styles are visible side by side in one image.
 - Resolve the absolute path before rendering local images in Markdown.
 - If helpful, you may also show the individual labeled example images from `../../data/style-example-gallery.json` or `../../data/style-presets.json`.
 - If you must continue without an answer:
   - default to `low_poly` for game asset packs
   - default to `stylized` for one-off characters or props
 - Once the user answers the style question, continue automatically. Do not stop after the image is generated. Do not wait for another confirmation unless a required secret is missing.
+- After calling the built-in image tool, continue the workflow in the same assistant turn. Do not leave the conversation on a bare image result.
 - Before spending Tripo credits, show the generated reference image and ask for one short confirmation unless the user explicitly said to continue without confirmation.
 - Do not ask the user to run `npm install` for this plugin during normal use. The bundled MCP bootstrap should install missing local Node dependencies automatically on first launch.
 - If `TRIPO_API_KEY` is missing, prefer asking the user to paste it directly in the chat instead of only telling them to retry later.
@@ -82,6 +85,7 @@ Use these files as the plugin's static data:
 ## Handoff Discipline
 
 - Do not stop on a bare `Image generated` result when the request includes Tripo handoff.
+- Do not stop on a bare `Image generated` result after any `imagegen` / Imagen step when a follow-up question or action is still required.
 - If confirmation is required, your next assistant message after the image must be the confirmation question from `../../data/handoff-flow.json`.
 - If the user confirms, continue with the Tripo API immediately in the same turn.
 - If the user requests edits to the generated reference image, revise the image first and restart the approval step for the revised image.

@@ -257,6 +257,7 @@ If `AGENTS.md` already defines a default style, the plugin should use it and ski
 Preferred behavior in Codex:
 
 - show the bundled style gallery image first
+- use the single combined gallery image so the examples appear side by side in one shot
 - keep each example labeled directly on the image
 - ask the style question right after the gallery
 - if the user asks for closer inspection, show the individual style images too
@@ -268,10 +269,12 @@ This repository stays plugin-only on purpose.
 The skill is designed to keep the workflow inside Codex:
 
 - use native Codex image generation for the reference image
+- prefer the built-in Codex image tool (`imagegen` / Imagen) for that step
 - use the current Codex tool environment for the next step
 - call the official Tripo API directly
 - avoid Playwright and browser automation for Tripo
 - ask for confirmation before launching Tripo 3D generation when the reference image is ready
+- continue responding after the image tool call instead of stopping on the generated image alone
 - continue directly to the Tripo API after the user confirms
 - prefer the local `show_3d_asset_widget` MCP tool for preview
 - fall back to the local preview URL only if the widget tool is unavailable

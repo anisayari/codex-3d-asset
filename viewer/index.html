@@ -256,7 +256,7 @@
       <div class="topbar">
         <div class="title-wrap">
           <div class="title">Codex 3D Asset Viewer</div>
-          <div class="subtitle">Choose a generated asset directly from Codex.</div>
+          <div id="subtitle" class="subtitle">Watching generated assets from Codex.</div>
         </div>
         <div class="controls">
           <select id="assetSelect" aria-label="Generated assets">
@@ -267,7 +267,7 @@
         <div id="status" class="status">Waiting for model</div>
       </div>
       <div id="assetStrip" class="asset-strip hidden"></div>
-      <div id="assetEmpty" class="asset-empty hidden">No generated 3D assets found yet.</div>
+      <div id="assetEmpty" class="asset-empty hidden">No generated 3D assets found yet. This viewer keeps checking automatically.</div>
       <div id="viewer">
         <div class="overlay">
           <strong id="overlayTitle">No asset selected</strong><br />
@@ -288,12 +288,14 @@
 
       const container = document.getElementById("viewer");
       const statusEl = document.getElementById("status");
+      const subtitleEl = document.getElementById("subtitle");
       const assetSelectEl = document.getElementById("assetSelect");
       const refreshAssetsButtonEl = document.getElementById("refreshAssetsButton");
       const assetStripEl = document.getElementById("assetStrip");
       const assetEmptyEl = document.getElementById("assetEmpty");
       const overlayTitleEl = document.getElementById("overlayTitle");
       const overlayBodyEl = document.getElementById("overlayBody");
+      const ASSET_POLL_INTERVAL_MS = 8000;
 
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -334,6 +336,10 @@
 
       function setStatus(message) {
         statusEl.textContent = message;
+      }
+
+      function setSubtitle(message) {
+        subtitleEl.textContent = message;
       }
 
       function resize() {
@@ -390,6 +396,16 @@
         }
       }
 
+      function describeAssetCount(count) {
+        if (!count) {
+          return "Watching generated outputs for the first asset.";
+        }
+        if (count === 1) {
+          return "1 generated asset available. The viewer keeps watching for updates.";
+        }
+        return `${count} generated assets available. The viewer keeps watching for updates.`;
+      }
+
       function findAssetByPath(modelPath) {
         return assets.find((asset) => asset.modelPath === modelPath) || null;
       }
@@ -414,11 +430,13 @@
         if (!assets.length) {
           assetStripEl.classList.add("hidden");
           assetEmptyEl.classList.remove("hidden");
+          setSubtitle(describeAssetCount(0));
           return;
         }
 
         assetEmptyEl.classList.add("hidden");
         assetStripEl.classList.remove("hidden");
+        setSubtitle(describeAssetCount(assets.length));
 
         for (const asset of assets) {
           const button = document.createElement("button");
@@ -513,6 +531,7 @@
           assetEmptyEl.classList.remove("hidden");
           overlayTitleEl.textContent = "Asset browser unavailable";
           overlayBodyEl.textContent = "The viewer could not fetch the generated asset list.";
+          setSubtitle("The generated asset browser could not be refreshed.");
           setStatus("Failed to scan generated assets");
           return preferredPath;
         }
@@ -634,6 +653,29 @@
           setStatus("Waiting for generated assets");
         }
       });
+
+      window.setInterval(async () => {
+        const preservedSelection = currentAssetPath || assetSelectEl.value;
+        const previousCount = assets.length;
+        const nextPath = await refreshAssetBrowser(preservedSelection);
+
+        if (nextPath && nextPath !== currentAssetPath) {
+          selectAsset(nextPath);
+          return;
+        }
+
+        if (!nextPath) {
+          setStatus("Watching for generated assets");
+          return;
+        }
+
+        renderAssetSelect(nextPath);
+        renderAssetStrip(nextPath);
+        updateOverlay(nextPath);
+        if (assets.length !== previousCount) {
+          setStatus(`Asset list updated: ${assets.length} available`);
+        }
+      }, ASSET_POLL_INTERVAL_MS);
     </script>
   </body>
 </html>

@@ -70,12 +70,27 @@ function resolveFilePath(rawPathname) {
   return candidate;
 }
 
+function toTitleCaseLabel(value) {
+  return value
+    .split(" ")
+    .filter(Boolean)
+    .map((word) => {
+      if (/^\d+d$/i.test(word)) {
+        return word.toUpperCase();
+      }
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(" ");
+}
+
 function toAssetLabel(filePath) {
   const baseName = path.basename(filePath, path.extname(filePath));
-  return baseName
-    .replace(/[-_]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  return toTitleCaseLabel(
+    baseName
+      .replace(/[-_]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+  );
 }
 
 function listGeneratedAssets() {

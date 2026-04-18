@@ -11,6 +11,9 @@
 - Estimated Tripo convert_model credits: [set from your current Tripo workspace if known]
 - For characters, always use a front-view T-pose
 - For reference images, always use a seamless pure white background with no cast shadow, no contact shadow, and no ambient shadow
+- When the reference image is ready, ask me once whether to revise the image or launch Tripo 3D now
+- When available, include my current Tripo wallet balance in that approval message
+- If I answer `continue` right after that approval message, treat it as approval for the current reference image
 
 ## Optional project-specific overrides
 

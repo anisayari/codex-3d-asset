@@ -144,6 +144,9 @@ try {
   if (!smokeAsset) {
     throw new Error("Viewer asset browser did not expose the generated smoke-test asset");
   }
+  if (smokeAsset.name !== "Smoke Test Knight") {
+    throw new Error(`Viewer asset label formatting regressed: received "${smokeAsset.name}"`);
+  }
 
   const walletResult = await client.callTool({
     name: "get_tripo_wallet_balance",
@@ -166,6 +169,12 @@ try {
 
   if (callResult?.structuredContent?.assetName !== "Smoke Test Knight") {
     throw new Error("Tool call did not return the expected structured content");
+  }
+  if (callResult?.structuredContent?.autoFullscreen !== true) {
+    throw new Error("Widget tool did not keep autoFullscreen enabled by default");
+  }
+  if (callResult?.structuredContent?.viewerUrl !== `http://127.0.0.1:${viewerPort}/viewer/index.html?model=/outputs/smoke-test/smoke-test-knight.glb`) {
+    throw new Error("Widget tool did not return the expected viewer URL");
   }
 
   console.log(

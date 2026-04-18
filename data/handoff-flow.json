@@ -1,11 +1,19 @@
 {
   "confirmBeforeTripoGeneration": true,
-  "confirmationPrompt": "The reference image is ready. Do you want me to launch the Tripo 3D generation now?",
-  "confirmationPromptWithCost": "The reference image is ready. Do you want me to launch the Tripo 3D generation now? Estimated Tripo cost: <credit_estimate> credits<usd_suffix>.",
-  "confirmationPromptWhenExactCostUnknown": "The reference image is ready. Do you want me to launch the Tripo 3D generation now? I do not have a verified exact per-task credit amount from the current official Tripo docs, so I will only proceed after your approval.",
+  "confirmationPrompt": "The reference image is ready. Should I revise the image first or launch the Tripo 3D generation now?",
+  "confirmationPromptWithCost": "The reference image is ready. Should I revise the image first or launch the Tripo 3D generation now? Estimated Tripo cost: <credit_estimate> credits<usd_suffix>.",
+  "confirmationPromptWithBalanceOnly": "The reference image is ready. Should I revise the image first or launch the Tripo 3D generation now? Current wallet balance: <wallet_balance> credits.",
+  "confirmationPromptWithCostAndBalance": "The reference image is ready. Should I revise the image first or launch the Tripo 3D generation now? Estimated Tripo cost: <credit_estimate> credits<usd_suffix>. Current wallet balance: <wallet_balance> credits.",
+  "confirmationPromptWhenExactCostUnknown": "The reference image is ready. Should I revise the image first or launch the Tripo 3D generation now? I do not have a verified exact per-task credit amount from the current official Tripo docs, so I will only proceed after your approval.",
   "skipConfirmationWhenExplicitlyRequested": true,
   "postConfirmationBehavior": "continue immediately with the Tripo API in the same turn",
   "postImageGenerationBehavior": "do not stop on the generated image alone; continue in the same turn with the next required step",
+  "postImageChecklist": [
+    "briefly restate the selected style and requested download format",
+    "tell the user that they can still request a reference-image revision before spending Tripo credits",
+    "include the current wallet balance when it was verified successfully",
+    "ask one short revise-or-generate question"
+  ],
   "requiredNextStepAfterImage": [
     "ask for image revision approval when the reference still needs user approval",
     "run the wallet check before any paid Tripo task when handoff was requested",

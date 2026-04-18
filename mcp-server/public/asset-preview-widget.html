@@ -197,6 +197,18 @@
       let currentOutput = null;
       let fullscreenRequested = false;
 
+      function setActionAvailability(viewerUrl) {
+        const enabled = Boolean(viewerUrl);
+        viewerLinkEl.href = viewerUrl || "#";
+        viewerLinkEl.setAttribute("aria-disabled", enabled ? "false" : "true");
+        viewerLinkEl.style.pointerEvents = enabled ? "auto" : "none";
+        viewerLinkEl.style.opacity = enabled ? "1" : "0.55";
+        fullscreenButtonEl.disabled = !enabled;
+        retryFrameButtonEl.disabled = !enabled;
+        fullscreenButtonEl.style.opacity = enabled ? "1" : "0.55";
+        retryFrameButtonEl.style.opacity = enabled ? "1" : "0.55";
+      }
+
       function rpcNotify(method, params) {
         window.parent.postMessage({ jsonrpc: "2.0", method, params }, "*");
       }
@@ -224,7 +236,7 @@
       async function initializeBridge() {
         try {
           await rpcRequest("ui/initialize", {
-            appInfo: { name: "codex-3d-asset-widget", version: "0.5.0" },
+            appInfo: { name: "codex-3d-asset-widget", version: "0.5.1" },
             appCapabilities: {},
             protocolVersion: "2026-01-26",
           });
@@ -245,13 +257,12 @@
         const autoFullscreen = output?.autoFullscreen !== false;
 
         assetNameEl.textContent = assetName;
-        metaEl.textContent = format ? `Preview format: ${format}` : "Preview ready.";
+        metaEl.textContent = format ? `Preview format: ${String(format).toUpperCase()}` : "Preview ready.";
         notesEl.textContent = notes;
         viewerHintEl.textContent = viewerUrl
-          ? "The viewer opens with the generated asset list already selected."
-          : "No viewer target is available yet.";
-        viewerLinkEl.href = viewerUrl || "#";
-        viewerLinkEl.setAttribute("aria-disabled", viewerUrl ? "false" : "true");
+          ? "The viewer opens with the selected asset and keeps watching generated outputs."
+          : "Waiting for a local viewer URL from the plugin.";
+        setActionAvailability(viewerUrl);
 
         if (viewerUrl) {
           frameEl.src = viewerUrl;
@@ -266,7 +277,9 @@
             requestFullscreenMode();
           }
         } else {
-          statusEl.textContent = "Missing viewer URL.";
+          placeholderEl.classList.remove("hidden");
+          frameEl.removeAttribute("src");
+          statusEl.textContent = "Waiting for viewer URL.";
         }
       }
 
@@ -304,7 +317,7 @@
 
       frameEl.addEventListener("load", () => {
         placeholderEl.classList.add("hidden");
-        statusEl.textContent = "Embedded preview loaded.";
+        statusEl.textContent = "Embedded preview loaded. Watching generated outputs.";
       });
 
       frameEl.addEventListener("error", () => {
@@ -327,6 +340,8 @@
 
       if (window.openai?.toolOutput) {
         applyOutput(window.openai.toolOutput);
+      } else {
+        setActionAvailability("");
       }
     </script>
   </body>

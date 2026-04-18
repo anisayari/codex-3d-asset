@@ -98,6 +98,23 @@ Use these files as the plugin's static data:
 - Fall back to returning the local viewer URL as a Markdown link only when the widget tool is unavailable or fails.
 - If the widget tool does not appear after a plugin update, tell the user to refresh Codex so local MCP tool descriptors reload.
 
+## Natural Conversation Flow
+
+- Right after the reference image is ready, do not leave the turn on the image alone.
+- The first follow-up message after the image should stay compact and explicit:
+  - restate the selected style
+  - restate the requested output format
+  - include the current wallet balance when it was verified successfully
+  - tell the user they can still request an image revision before spending Tripo credits
+  - ask one short question that offers both paths:
+    `Should I revise this image first or launch the Tripo 3D generation now?`
+- If the user answers with `continue`, `launch it`, `go ahead`, `generate the 3D`, or similar right after that approval question, treat it as approval for the current reference image.
+- If the user answers with a subject change, style change, composition change, or quality change, treat it as a reference-image revision request instead of approval.
+- If `TRIPO_API_KEY` is missing, say that directly and mention both options:
+  - the user can paste the key in chat now
+  - the user can ask Codex to configure it for the current session
+- When the key is missing and you mention setup, include both the Tripo API docs link and the direct API key page from `../../data/setup.json`.
+
 ## Asset Packs
 
 - For a soccer or football request, start from `../../data/pack-templates/football-match-low-poly.json`.
@@ -119,18 +136,19 @@ Use these files as the plugin's static data:
 9. If the user explicitly asks Codex to configure the key and provides it, Codex may export it for the current session immediately or persist it when explicitly requested.
 10. If the request is a pack, load the pack template and adapt it.
 11. Generate the reference image with Codex using the white-background no-shadow rules.
-12. If the user requests changes to that image, edit or regenerate the current reference image and stay in the reference-image loop until they approve it.
-13. If the user asked for Tripo handoff, call the Tripo wallet endpoint before any paid generation or conversion task:
+12. If the user asked for Tripo handoff, call the Tripo wallet endpoint before any paid generation or conversion task:
     - report the current balance when it is returned
     - if the balance is zero, ask the user to recharge before continuing
     - if a verified estimate exists and the balance appears too low, tell the user before continuing
     - if the wallet call fails, say that the balance could not be verified and do not invent one
-14. If the user asked for Tripo handoff, ask for a short confirmation after the reference image is ready:
+13. Right after the image is ready, summarize the style, requested format, and current wallet status when known, then ask whether to revise the image or launch Tripo.
+14. If the user requests changes to that image, edit or regenerate the current reference image and stay in the reference-image loop until they approve it.
+15. If the user asked for Tripo handoff, ask for a short confirmation after the reference image is ready:
     - use the credit-aware confirmation rule from `../../data/handoff-flow.json`
     - include a credit estimate when available from `../../data/tripo-credit-policy.json`, `AGENTS.md`, or current workspace metadata
     - include the wallet balance when it was retrieved successfully
     - if no reliable estimate exists, say so explicitly and do not invent one
-15. If the user confirms, continue to the Tripo API step in the same turn.
+16. If the user confirms, continue to the Tripo API step in the same turn.
 
 ## Tripo Step
 

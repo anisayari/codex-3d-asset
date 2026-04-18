@@ -1,0 +1,19 @@
+{
+  "createdAt": "2026-04-17T21:35:59.113Z",
+  "files": {
+    "maps": {
+      "baseColor": "Bricks048_4K_Color.jpg",
+      "normal": "Bricks048_4K_Normal.jpg",
+      "roughness": "Bricks048_4K_Roughness.jpg",
+      "displacement": "Bricks048_4K_Displacement.jpg"
+    }
+  },
+  "fileName": "Bricks048_4K_Color.jpg",
+  "id": "asset_texture_f3e3aa73c7c3",
+  "kind": "terrainTexture",
+  "mimeType": "image/jpeg",
+  "name": "Brick",
+  "size": 18495160,
+  "thumbnailFileName": "Brick_thumb.webp",
+  "updatedAt": "2026-04-17T21:35:59.113Z"
+}

@@ -1,35 +1,39 @@
 {
   "name": "codex-3d-asset",
-  "version": "0.1.0",
-  "description": "Generate Codex-ready white-background references with no shadows, then submit them to Tripo 3D.",
+  "version": "0.2.0",
+  "description": "Pure Codex plugin for shadowless white-background 3D asset references and Tripo-ready workflows.",
   "author": {
-    "name": "Codex Local",
-    "email": "",
-    "url": ""
+    "name": "Anis Ayari",
+    "email": "anis.ayari.perso@gmail.com",
+    "url": "https://github.com/anisayari"
   },
+  "homepage": "https://github.com/anisayari/codex-3d-asset",
+  "repository": "https://github.com/anisayari/codex-3d-asset",
+  "license": "MIT",
   "keywords": [
     "codex",
+    "plugin",
     "tripo",
     "3d",
-    "asset-pack",
-    "style",
-    "game-assets"
+    "asset",
+    "image-generation"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Codex 3D Asset",
-    "shortDescription": "Generate white-background, no-shadow references in Codex and send them to Tripo 3D.",
-    "longDescription": "Creates Tripo-ready reference images on a seamless white background with no cast, contact, or ambient shadow, asks for style when needed, accepts example images, supports asset-pack manifests, forces front-view T-pose for characters, and submits the results to Tripo 3D.",
-    "developerName": "Local",
+    "shortDescription": "Generate Tripo-ready reference images in Codex with shadowless white-background rules.",
+    "longDescription": "Instruction-only Codex plugin for 3D asset workflows. It resolves style, uses native image generation, enforces shadowless white-background references with no floor gradient or ground plane, applies front-view T-pose rules for characters, and supports Tripo handoff inside Codex when browser automation is available.",
+    "developerName": "Anis Ayari",
     "category": "Productivity",
     "capabilities": [
       "Interactive",
       "Write"
     ],
+    "websiteURL": "https://github.com/anisayari/codex-3d-asset",
     "defaultPrompt": [
-      "Crée un personnage low poly en T-pose sur fond blanc sans ombre puis envoie-le à Tripo.",
-      "Génère tous les assets pour un match de foot low poly.",
-      "Utilise ces images d'exemple pour définir le style avant Tripo."
+      "Create a low poly knight in a shadowless front-view T-pose on white.",
+      "Generate every low poly asset needed for a soccer match.",
+      "Use these references to define the style, then prep the asset for Tripo."
     ],
     "brandColor": "#0ea5a4",
     "composerIcon": "./assets/icon.svg",

@@ -1,0 +1,30 @@
+{
+  "background": "seamless pure white",
+  "lighting": "neutral and even",
+  "rendering": "shadowless cutout reference",
+  "shadows": [
+    "no cast shadow",
+    "no contact shadow",
+    "no ambient shadow"
+  ],
+  "composition": {
+    "singleSubject": true,
+    "centered": true,
+    "fullSilhouetteVisible": true,
+    "noVisibleGroundPlane": true,
+    "noFloorGradient": true,
+    "noUnderFootDarkening": true,
+    "noVignette": true,
+    "noScenery": true,
+    "noText": true,
+    "noBorder": true,
+    "noExtraObjects": true
+  },
+  "characterPose": {
+    "view": "front",
+    "pose": "strict neutral T-pose",
+    "arms": "horizontal",
+    "legs": "slightly apart",
+    "symmetry": true
+  }
+}

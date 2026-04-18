@@ -1,0 +1,19 @@
+{
+  "createdAt": "2026-04-17T21:26:13.479Z",
+  "files": {
+    "maps": {
+      "baseColor": "rocky_trail_diff_1k.jpg",
+      "normal": "rocky_trail_nor_gl_1k.exr",
+      "roughness": "rocky_trail_rough_1k.exr",
+      "displacement": "rocky_trail_disp_1k.png"
+    }
+  },
+  "fileName": "rocky_trail_diff_1k.jpg",
+  "id": "asset_texture_e3c8dfb8388f",
+  "kind": "terrainTexture",
+  "mimeType": "image/jpeg",
+  "name": "Rocky Trail",
+  "size": 6941654,
+  "thumbnailFileName": "rocky_trail_diff_1k.jpg",
+  "updatedAt": "2026-04-17T21:26:13.479Z"
+}

@@ -1,122 +1,126 @@
 # Codex 3D Asset
 
-`codex-3d-asset` is a Codex plugin for a simple pipeline:
+`codex-3d-asset` is a pure Codex plugin.
 
-1. generate a clean reference image in Codex
-2. keep it on a seamless white background with no shadows
-3. force a front-view T-pose for characters
-4. send the image to Tripo 3D
-5. download the generated files locally
+It gives Codex a clear workflow for:
 
-It also supports:
+- generating clean reference images for 3D conversion
+- enforcing a seamless white background
+- removing cast, contact, and ambient shadows
+- removing floor gradients, visible ground planes, and under-foot darkening
+- forcing a front-view T-pose for characters
+- resolving style from explicit instructions or visual references
+- preparing asset packs from reusable templates
+- handing the result off to Tripo inside Codex when browser automation is available
 
-- style presets such as `low_poly`, `highly_detailed`, `photorealistic`, `stylized`, `toon`, and `voxel`
-- a short style question when the request does not define a style
-- example images as visual references
-- asset-pack manifests for multi-asset requests such as a football match pack
+## Plugin Contents
 
-The Tripo integration follows the official docs:
+- `.codex-plugin/plugin.json`: Codex plugin manifest
+- `skills/codex-3d-asset/SKILL.md`: plugin workflow and operating rules
+- `assets/icon.svg`: plugin icon
+- `data/style-presets.json`: canonical style labels and defaults
+- `data/reference-rules.json`: image-generation constraints
+- `data/pack-templates/football-match-low-poly.json`: reusable pack template
+- `data/assets/`: bundled sample assets and textures
 
-- [Introduction](https://platform.tripo3d.ai/docs/introduction)
-- [Upload](https://platform.tripo3d.ai/docs/upload)
-- [Generation](https://platform.tripo3d.ai/docs/generation)
-- [Task](https://platform.tripo3d.ai/docs/task)
+## Install
 
-## Install on Codex
+Clone the repository:
 
 ```bash
 git clone https://github.com/anisayari/codex-3d-asset.git
 cd codex-3d-asset
-./install.sh
 ```
 
-The installer:
-
-- copies the plugin into `~/plugins/codex-3d-asset`
-- creates or updates `~/.agents/plugins/marketplace.json`
-- migrates the old `tripo-image-bridge` marketplace entry to `codex-3d-asset` when needed
-
-## Requirements
-
-- Codex desktop with local plugins enabled
-- `python3`
-- `TRIPO_API_KEY` for Tripo conversion
-
-For normal use inside Codex, no `OPENAI_API_KEY` is needed. Codex image generation is the default path. `OPENAI_API_KEY` is only an optional standalone fallback for `--prompt` mode outside Codex.
-
-## Quick start
-
-Generate a manifest for a football asset pack:
+Copy the plugin into your local Codex plugins directory:
 
 ```bash
-python3 scripts/build_asset_pack.py \
-  --theme "genere tout les assets pour un match de foot low poly" \
-  --style-preset low_poly \
-  --output examples/football-low-poly-pack.json
+mkdir -p ~/plugins/codex-3d-asset
+rsync -a --delete --exclude .git ./ ~/plugins/codex-3d-asset/
 ```
 
-Send an existing image to Tripo:
+Make sure `~/.agents/plugins/marketplace.json` contains this entry:
 
-```bash
-python3 scripts/codex_tripo_bridge.py \
-  --image "/absolute/path/to/reference.png" \
-  --subject-type object \
-  --asset-name soccer_ball \
-  --style-preset low_poly \
-  --tripo-model-version P1-20260311 \
-  --texture-quality standard \
-  --face-limit 3500 \
-  --verbose
+```json
+{
+  "name": "codex-3d-asset",
+  "source": {
+    "source": "local",
+    "path": "./plugins/codex-3d-asset"
+  },
+  "policy": {
+    "installation": "AVAILABLE",
+    "authentication": "ON_INSTALL"
+  },
+  "category": "Productivity"
+}
 ```
 
-Standalone fallback image generation outside Codex:
+If you do not already have a marketplace file, the minimal shape is:
 
-```bash
-python3 scripts/codex_tripo_bridge.py \
-  --prompt "football trophy low poly game asset" \
-  --subject-type object \
-  --generate-only \
-  --verbose
+```json
+{
+  "name": "local",
+  "interface": {
+    "displayName": "Local Plugins"
+  },
+  "plugins": [
+    {
+      "name": "codex-3d-asset",
+      "source": {
+        "source": "local",
+        "path": "./plugins/codex-3d-asset"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
 ```
 
-## Expected prompt rules
+## Usage
 
-The plugin is built to enforce these constraints in image prompts:
+After installation, use prompts such as:
 
-- one isolated subject only
-- seamless pure white background
-- no cast shadow
-- no contact shadow
-- no ambient shadow
-- full silhouette visible
-- centered subject
-- no scenery, text, borders, or extra objects
-- if the subject is a character: front view, strict neutral T-pose
+- `Create a low poly knight in a front-view T-pose on white, then send it to Tripo.`
+- `Generate every low poly asset needed for a soccer match.`
+- `Use these example images to define the style, then prepare the asset for Tripo.`
 
-## Example Codex requests
+## Style Handling
 
-- `genere un chevalier low poly en t-pose sur fond blanc sans ombre puis envoie-le a tripo`
-- `genere tout les assets pour un match de foot low poly`
-- `utilise ces images d'exemple pour faire le style puis cree les assets`
+The plugin supports these styles:
 
-If no style is defined and no example image is provided, the plugin asks:
+- `low_poly`
+- `highly_detailed`
+- `photorealistic`
+- `stylized`
+- `toon`
+- `voxel`
 
-`Quel style veux-tu pour les assets: low poly, highly detailed, photorealistic, stylized, toon ou voxel ?`
+If the user does not specify a style and does not provide reference images, the plugin asks one short question in English before generating the reference.
 
-## Files
+## Tripo Handoff
 
-- `.codex-plugin/plugin.json`: plugin manifest
-- `skills/codex-3d-asset/SKILL.md`: Codex usage workflow
-- `scripts/codex_tripo_bridge.py`: Tripo bridge
-- `scripts/build_asset_pack.py`: manifest generator
-- `scripts/install_plugin.py`: Codex installer
-- `assets/style_presets.json`: style presets
+This repository stays plugin-only on purpose.
 
-## Security
+The skill is designed to keep the workflow inside Codex:
 
-- keep `TRIPO_API_KEY` in your environment
-- do not commit secrets
-- do not put API keys in examples, screenshots, or manifests
+- use native Codex image generation for the reference image
+- use the current Codex tool environment for the next step
+- use browser automation for Tripo when that capability is available in the session
+
+If Tripo automation is not available in the current session, the plugin should stop after producing the reference image and explain the next manual step clearly.
+
+## Data Bundle
+
+The `data/` directory contains:
+
+- reusable style and prompt rules
+- a ready-made soccer asset-pack template
+- a bundled sample asset library extracted from the provided `data (1).zip`
 
 ## License
 

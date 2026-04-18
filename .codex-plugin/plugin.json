@@ -1,7 +1,7 @@
 {
   "name": "codex-3d-asset",
   "version": "0.5.0",
-  "description": "Codex plugin for automatic Tripo-ready image-to-3D workflows with runtime dependency bootstrap, confirmable API handoff, widget-driven local preview, and selectable download formats.",
+  "description": "Codex plugin for automatic Tripo-ready image-to-3D workflows with runtime dependency bootstrap, wallet-aware Tripo handoff, continuous post-image flow, widget-driven local preview, and selectable download formats.",
   "author": {
     "name": "Anis Ayari",
     "email": "anis.ayari.perso@gmail.com",
@@ -22,8 +22,8 @@
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Codex 3D Asset",
-    "shortDescription": "Generate Tripo-ready reference images in Codex, confirm the handoff, open a 3D preview widget, and choose the download format.",
-    "longDescription": "Codex plugin for 3D asset workflows. It resolves style, uses native image generation, enforces shadowless white-background references with no floor gradient or ground plane, applies front-view T-pose rules for characters, checks TRIPO_API_KEY before handoff, asks for confirmation before spending Tripo credits unless the user explicitly wants immediate continuation, uses the Tripo API directly instead of browser automation, bootstraps its local MCP dependencies automatically on first launch, starts a local viewer server for plugin-scoped outputs, exposes a fullscreenable 3D preview widget, and supports selectable output download formats with glb as the default.",
+    "shortDescription": "Generate Tripo-ready reference images in Codex, check wallet credits before handoff, keep the flow going after image generation, open a 3D preview widget, and choose the download format.",
+    "longDescription": "Codex plugin for 3D asset workflows. It resolves style, uses native image generation, enforces shadowless white-background references with no floor gradient or ground plane, applies front-view T-pose rules for characters, checks TRIPO_API_KEY before handoff, checks the Tripo wallet balance before paid tasks when available, asks for confirmation before spending Tripo credits unless the user explicitly wants immediate continuation, continues the conversation after image generation instead of stopping on the image alone, uses the Tripo API directly instead of browser automation, bootstraps its local MCP dependencies automatically on first launch, starts a local viewer server for plugin-scoped outputs, exposes a fullscreenable 3D preview widget, and supports selectable output download formats with glb as the default.",
     "developerName": "Anis Ayari",
     "category": "Productivity",
     "capabilities": [

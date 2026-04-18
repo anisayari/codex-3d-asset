@@ -124,6 +124,11 @@ if (!tool) {
   throw new Error("show_3d_asset_widget tool not found");
 }
 
+const walletTool = tools.tools.find((entry) => entry.name === "get_tripo_wallet_balance");
+if (!walletTool) {
+  throw new Error("get_tripo_wallet_balance tool not found");
+}
+
 if (tool?._meta?.ui?.resourceUri !== "ui://widget/asset-preview-v1.html") {
   throw new Error("Unexpected widget resource URI");
 }
@@ -138,6 +143,15 @@ try {
   const smokeAsset = assetsPayload?.assets?.find((asset) => asset.modelPath === "/outputs/smoke-test/smoke-test-knight.glb");
   if (!smokeAsset) {
     throw new Error("Viewer asset browser did not expose the generated smoke-test asset");
+  }
+
+  const walletResult = await client.callTool({
+    name: "get_tripo_wallet_balance",
+    arguments: {},
+  });
+
+  if (walletResult?.structuredContent?.missingApiKey !== true) {
+    throw new Error("Wallet tool did not report the expected missing-key state during smoke test");
   }
 
   const callResult = await client.callTool({
@@ -162,6 +176,7 @@ try {
         viewerHealth: health,
         generatedAssetsCount: assetsPayload.count,
         smokeAsset,
+        walletStructuredContent: walletResult.structuredContent,
         callStructuredContent: callResult.structuredContent,
       },
       null,

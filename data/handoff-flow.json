@@ -5,6 +5,13 @@
   "confirmationPromptWhenExactCostUnknown": "The reference image is ready. Do you want me to launch the Tripo 3D generation now? I do not have a verified exact per-task credit amount from the current official Tripo docs, so I will only proceed after your approval.",
   "skipConfirmationWhenExplicitlyRequested": true,
   "postConfirmationBehavior": "continue immediately with the Tripo API in the same turn",
+  "postImageGenerationBehavior": "do not stop on the generated image alone; continue in the same turn with the next required step",
+  "requiredNextStepAfterImage": [
+    "ask for image revision approval when the reference still needs user approval",
+    "run the wallet check before any paid Tripo task when handoff was requested",
+    "ask the Tripo confirmation question with current balance context when approval is still required",
+    "continue directly to Tripo only when approval was already explicit"
+  ],
   "allowReferenceImageRevisionLoop": true,
   "revisionLoopRule": "If the user requests changes to the generated reference image, revise the image first and ask the Tripo confirmation question again only after the revised image is ready.",
   "neverGenerate3DWithoutApprovalOfCurrentReference": true,

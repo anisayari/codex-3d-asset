@@ -8,6 +8,18 @@
   "apiKeysUrl": "https://platform.tripo3d.ai/api-keys",
   "workflow": [
     {
+      "name": "getWalletBalance",
+      "method": "GET",
+      "path": "/wallet",
+      "resultFieldCandidates": [
+        "data.available_credits",
+        "data.remaining_credits",
+        "data.credit_balance",
+        "data.credits",
+        "data.balance"
+      ]
+    },
+    {
       "name": "uploadReferenceImage",
       "method": "POST",
       "path": "/upload/sts",
@@ -49,9 +61,14 @@
   "notes": [
     "Prefer direct API calls over browser automation.",
     "Check the API key before generating the reference when the user asked for Tripo handoff.",
+    "Before creating any paid Tripo generation or conversion task, call the wallet endpoint and retrieve the user's current credits when the endpoint is available.",
+    "If the wallet call succeeds, report the current credit balance before asking for approval to spend credits.",
+    "If the wallet call shows zero credits, or fewer credits than a verified task estimate, tell the user to recharge before launching the task.",
+    "If the wallet call fails or returns an unknown shape, say that you could not verify the current credit balance and do not invent a number.",
     "If the key is missing, ask the user to paste TRIPO_API_KEY in chat or configure it in the environment, and include both the official docs link and the direct API key page.",
     "If the user provides a valid tsk_ key in chat, continue the current workflow without asking them to repeat the original request.",
     "Continue automatically after image generation when the key is present.",
+    "Do not end the assistant turn on a bare generated image. After image generation, either continue to the wallet check, ask for image revision approval, or continue to the Tripo API step.",
     "GLB is the default direct download from generation output.",
     "FBX, GLTF, OBJ, STL, and USDZ use convert_model after generation succeeds.",
     "OBJ conversion can return a zip artifact rather than a bare .obj file."

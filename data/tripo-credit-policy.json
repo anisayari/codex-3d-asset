@@ -11,8 +11,18 @@
   "estimatePriority": [
     "explicit user-provided credit estimate",
     "AGENTS.md project or personal defaults",
-    "current Tripo workspace or API metadata when available in the active tool context"
+    "current Tripo workspace or API metadata when available in the active tool context",
+    "wallet endpoint balance when available in the current Tripo API session"
   ],
+  "walletCheck": {
+    "requiredBeforePaidTask": true,
+    "endpointName": "getWalletBalance",
+    "path": "/wallet",
+    "reportBalanceBeforeApproval": true,
+    "whenBalanceIsZero": "Tell the user that Tripo reports zero available credits and ask them to recharge before launching generation.",
+    "whenBalanceIsLowerThanKnownEstimate": "Tell the user that the available balance appears lower than the known estimated task cost and ask them to recharge first.",
+    "whenBalanceCannotBeVerified": "Say that the current Tripo credit balance could not be verified from the wallet endpoint and do not invent a number."
+  },
   "fallbackRuleWhenExactCreditsUnknown": "Do not invent an exact per-task credit amount. Say that the current official docs confirm credit-based billing, 2,000 free credits on first API key generation, and $0.01 per additional credit, but do not provide a verified exact per-task credit figure in the currently verified sources.",
-  "confirmationRule": "Always ask for approval before spending Tripo credits. Include the credit estimate when available. Otherwise say that the exact per-task credit amount is not verified from the current official docs."
+  "confirmationRule": "Always ask for approval before spending Tripo credits. Include the wallet balance and the credit estimate when available. Otherwise say that the exact per-task credit amount or current balance could not be fully verified."
 }

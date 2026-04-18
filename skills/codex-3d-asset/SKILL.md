@@ -49,6 +49,8 @@ Use these files as the plugin's static data:
 
 - Use Codex native image generation for reference images.
 - Prefer the built-in Codex image tool (`imagegen` / Imagen) for those reference images.
+- When a request includes Tripo handoff, do not end the assistant turn immediately after the image tool returns.
+- After the image is generated, continue in the same turn with the next required action: wallet check, approval question, revision loop, or Tripo API handoff.
 - Generate exactly one isolated subject per image.
 - Use a seamless pure white background.
 - Do not add cast shadow, contact shadow, or ambient shadow.
@@ -75,6 +77,7 @@ Use these files as the plugin's static data:
   - default to `stylized` for one-off characters or props
 - Once the user answers the style question, continue automatically. Do not stop after the image is generated. Do not wait for another confirmation unless a required secret is missing.
 - After calling the built-in image tool, continue the workflow in the same assistant turn. Do not leave the conversation on a bare image result.
+- After a reference image is ready for Tripo, first perform the wallet check when the Tripo wallet endpoint is available, then ask the approval question or continue if approval was already explicit.
 - Before spending Tripo credits, show the generated reference image and ask for one short confirmation unless the user explicitly said to continue without confirmation.
 - Do not ask the user to run `npm install` for this plugin during normal use. The bundled MCP bootstrap should install missing local Node dependencies automatically on first launch.
 - If `TRIPO_API_KEY` is missing, prefer asking the user to paste it directly in the chat instead of only telling them to retry later.
@@ -117,11 +120,17 @@ Use these files as the plugin's static data:
 10. If the request is a pack, load the pack template and adapt it.
 11. Generate the reference image with Codex using the white-background no-shadow rules.
 12. If the user requests changes to that image, edit or regenerate the current reference image and stay in the reference-image loop until they approve it.
-13. If the user asked for Tripo handoff, ask for a short confirmation after the reference image is ready:
+13. If the user asked for Tripo handoff, call the Tripo wallet endpoint before any paid generation or conversion task:
+    - report the current balance when it is returned
+    - if the balance is zero, ask the user to recharge before continuing
+    - if a verified estimate exists and the balance appears too low, tell the user before continuing
+    - if the wallet call fails, say that the balance could not be verified and do not invent one
+14. If the user asked for Tripo handoff, ask for a short confirmation after the reference image is ready:
     - use the credit-aware confirmation rule from `../../data/handoff-flow.json`
     - include a credit estimate when available from `../../data/tripo-credit-policy.json`, `AGENTS.md`, or current workspace metadata
+    - include the wallet balance when it was retrieved successfully
     - if no reliable estimate exists, say so explicitly and do not invent one
-14. If the user confirms, continue to the Tripo API step in the same turn.
+15. If the user confirms, continue to the Tripo API step in the same turn.
 
 ## Tripo Step
 
@@ -132,6 +141,9 @@ When Tripo handoff is requested:
 - stay inside the current Codex tool environment
 - do not open the Tripo website in Playwright or browser automation
 - do not use a browser session when the API can perform the task
+- call the wallet endpoint before any paid generation or conversion task when it is available
+- if the wallet call succeeds, report the current credit balance before asking for final approval
+- if the wallet call shows no credits, stop and ask the user to recharge first
 - if API access is not set up yet, give the user both the official docs link and the direct API key page from `../../data/setup.json` or `../../data/tripo-api.json`
 - before launching the 3D task, disclose the credit estimate when a reliable estimate is available
 - if the exact per-task credit amount is not verified from the current official docs, say that clearly instead of inventing a number

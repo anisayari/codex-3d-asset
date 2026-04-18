@@ -1,0 +1,11 @@
+{
+  "tripoApiKey": {
+    "envVar": "TRIPO_API_KEY",
+    "required": true,
+    "requiredPrefix": "tsk_",
+    "usedFor": "Direct Tripo API handoff after Codex image generation",
+    "missingMessage": "Tripo handoff needs TRIPO_API_KEY configured before the workflow can continue.",
+    "setupInstruction": "Set TRIPO_API_KEY in your shell or Codex environment, then retry the same prompt.",
+    "shellExample": "export TRIPO_API_KEY=\"tsk_...\""
+  }
+}

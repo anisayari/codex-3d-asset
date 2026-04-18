@@ -1,0 +1,40 @@
+{
+  "baseUrl": "https://api.tripo3d.ai/v2/openapi",
+  "auth": {
+    "type": "bearer",
+    "envVar": "TRIPO_API_KEY"
+  },
+  "workflow": [
+    {
+      "name": "uploadReferenceImage",
+      "method": "POST",
+      "path": "/upload/sts",
+      "contentType": "multipart/form-data",
+      "resultField": "data.image_token"
+    },
+    {
+      "name": "createImageToModelTask",
+      "method": "POST",
+      "path": "/task",
+      "contentType": "application/json",
+      "body": {
+        "type": "image_to_model",
+        "file": {
+          "type": "jpg",
+          "file_token": "<image_token>"
+        }
+      },
+      "resultField": "data.task_id"
+    },
+    {
+      "name": "pollTask",
+      "method": "GET",
+      "path": "/task/{task_id}"
+    }
+  ],
+  "notes": [
+    "Prefer direct API calls over browser automation.",
+    "Check the API key before generating the reference when the user asked for Tripo handoff.",
+    "Continue automatically after image generation when the key is present."
+  ]
+}

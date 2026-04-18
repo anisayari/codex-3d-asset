@@ -11,13 +11,16 @@ It gives Codex a clear workflow for:
 - forcing a front-view T-pose for characters
 - resolving style from explicit instructions or visual references
 - preparing asset packs from reusable templates
-- handing the result off to Tripo inside Codex when browser automation is available
+- handing the result off to Tripo through the official API inside Codex
 
 ## Plugin Contents
 
 - `.codex-plugin/plugin.json`: Codex plugin manifest
 - `skills/codex-3d-asset/SKILL.md`: plugin workflow and operating rules
 - `assets/icon.svg`: plugin icon
+- `assets/soldier-helmet-logo.png`: plugin logo
+- `data/setup.json`: required setup values
+- `data/tripo-api.json`: Tripo API workflow reference
 - `data/style-presets.json`: canonical style labels and defaults
 - `data/reference-rules.json`: image-generation constraints
 - `data/pack-templates/football-match-low-poly.json`: reusable pack template
@@ -89,6 +92,18 @@ After installation, use prompts such as:
 - `Generate every low poly asset needed for a soccer match.`
 - `Use these example images to define the style, then prepare the asset for Tripo.`
 
+## Setup
+
+Tripo handoff requires `TRIPO_API_KEY`.
+
+Set it before starting the workflow:
+
+```bash
+export TRIPO_API_KEY="tsk_..."
+```
+
+The plugin should check for `TRIPO_API_KEY` before it starts a Tripo handoff. If the key is missing, it should stop immediately and ask for setup instead of generating the image and stalling later.
+
 ## Style Handling
 
 The plugin supports these styles:
@@ -102,6 +117,10 @@ The plugin supports these styles:
 
 If the user does not specify a style and does not provide reference images, the plugin asks one short question in English before generating the reference.
 
+Use the subject in the question when possible, for example:
+
+`Which style should I use for the horse: low poly, highly detailed, photorealistic, stylized, toon, or voxel?`
+
 ## Tripo Handoff
 
 This repository stays plugin-only on purpose.
@@ -110,9 +129,11 @@ The skill is designed to keep the workflow inside Codex:
 
 - use native Codex image generation for the reference image
 - use the current Codex tool environment for the next step
-- use browser automation for Tripo when that capability is available in the session
+- call the official Tripo API directly
+- avoid Playwright and browser automation for Tripo
+- continue automatically after the image is generated when the API key is available
 
-If Tripo automation is not available in the current session, the plugin should stop after producing the reference image and explain the next manual step clearly.
+If `TRIPO_API_KEY` is missing, the plugin should stop before the Tripo step and ask for setup.
 
 ## Data Bundle
 

@@ -13,6 +13,8 @@ This plugin is instruction-only. Keep the workflow inside Codex-native tools for
 
 Use these files as the plugin's static data:
 
+- `../../data/setup.json`
+- `../../data/tripo-api.json`
 - `../../data/style-presets.json`
 - `../../data/reference-rules.json`
 - `../../data/pack-templates/football-match-low-poly.json`
@@ -34,11 +36,12 @@ Use these files as the plugin's static data:
 
 - If the user explicitly names a style, use it.
 - If the user provides example images, use them as the main style reference.
-- If neither style nor references are provided, ask exactly one short question:
-  `Which style should I use: low poly, highly detailed, photorealistic, stylized, toon, or voxel?`
+- If neither style nor references are provided, ask exactly one short question in English and include the subject when known:
+  `Which style should I use for the horse: low poly, highly detailed, photorealistic, stylized, toon, or voxel?`
 - If you must continue without an answer:
   - default to `low_poly` for game asset packs
   - default to `stylized` for one-off characters or props
+- Once the user answers the style question, continue automatically. Do not stop after the image is generated. Do not wait for another confirmation unless a required secret is missing.
 
 ## Asset Packs
 
@@ -51,19 +54,23 @@ Use these files as the plugin's static data:
 
 1. Classify the request as `character` or `object`.
 2. Resolve the style from explicit text, example images, or the one short question above.
-3. If the request is a pack, load the pack template and adapt it.
-4. Generate the reference image with Codex using the white-background no-shadow rules.
-5. If the user wants a Tripo handoff and the current Codex session has browser automation available, complete the Tripo step inside Codex.
-6. If browser automation is not available, stop after the reference image and provide the exact next manual step.
+3. If the user wants a Tripo handoff, check `TRIPO_API_KEY` before generating the image.
+4. If `TRIPO_API_KEY` is missing, stop immediately and give the setup instruction from `../../data/setup.json`.
+5. If the request is a pack, load the pack template and adapt it.
+6. Generate the reference image with Codex using the white-background no-shadow rules.
+7. Continue automatically to the Tripo API step in the same turn when `TRIPO_API_KEY` is available.
 
 ## Tripo Step
 
 When Tripo handoff is requested:
 
-- prefer the user's existing Tripo browser session when available
+- use the official Tripo API described in `../../data/tripo-api.json`
 - stay inside the current Codex tool environment
-- do not create local automation helpers
+- do not open the Tripo website in Playwright or browser automation
+- do not use a browser session when the API can perform the task
 - keep the upload tied to the generated reference image used in the conversation
+- use API upload, task creation, and task polling directly
+- report the final task status instead of stopping at `Image generated`
 
 ## Prompt Wording
 
@@ -82,5 +89,5 @@ Report back with:
 - the selected or inferred style
 - whether example images were used
 - the reference image path
-- whether Tripo handoff was completed in-session
+- whether Tripo API handoff was completed in-session
 - any downloaded model paths when available

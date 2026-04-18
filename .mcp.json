@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "codex-3d-asset-widget": {
+      "command": "node",
+      "args": ["./mcp-server/server.mjs"],
+      "cwd": "."
+    }
+  }
+}

@@ -23,6 +23,8 @@ Use these files as the plugin's static data:
 - `../../data/assets/`
 - `../../docs/AGENTS.example.md`
 - `../../viewer/index.html`
+- `../../mcp-server/server.mjs`
+- `../../mcp-server/public/asset-preview-widget.html`
 
 ## Preference Memory
 
@@ -68,7 +70,9 @@ Use these files as the plugin's static data:
 - If the user confirms, continue with the Tripo API immediately in the same turn.
 - Do not switch to Playwright, browser automation, or the Tripo website for the generation step.
 - Do not use Playwright or browser automation for the preview step either.
-- When the model download finishes, prepare the local viewer URL and return it in the Codex response as a Markdown link when preview is possible.
+- When the model download finishes, prefer the `show_3d_asset_widget` tool when it is available.
+- Fall back to returning the local viewer URL as a Markdown link only when the widget tool is unavailable or fails.
+- If the widget tool does not appear after a plugin update, tell the user to refresh Codex so local MCP tool descriptors reload.
 
 ## Asset Packs
 
@@ -107,7 +111,9 @@ When Tripo handoff is requested:
 - if the requested download format is `fbx`, `gltf`, `obj`, `stl`, or `usdz`, run a `convert_model` task after the generation task succeeds
 - if the conversion result is returned as a zip archive, download the zip and report that exact file path
 - if the conversion result is returned as a zip archive and the user wants preview, extract it and preview the first supported 3D asset inside the archive
-- after the file is downloaded, build the local preview URL when the format is previewable and return it directly in the response
+- after the file is downloaded, build the local preview URL when the format is previewable
+- if `show_3d_asset_widget` is available, call it with the local viewer URL, asset name, and format
+- if the widget tool is not available, return the local preview URL directly in the response
 
 ## Local Viewer
 
@@ -116,7 +122,9 @@ After a model file is available:
 - use `../../viewer/index.html` as the local viewer entry point
 - start a localhost server rooted high enough to serve both the viewer and the generated model file
 - build the viewer URL with a `model` query parameter pointing to the generated asset
-- if a supported preview file exists, return that localhost viewer URL as a Markdown link in the Codex response
+- if `show_3d_asset_widget` is available, call it instead of only returning a link
+- the widget should request fullscreen on mount and set the host open-in-app target to the local viewer URL
+- if the widget tool is unavailable, return that localhost viewer URL as a Markdown link in the Codex response
 - support preview for `glb`, `gltf`, `fbx`, `obj`, `stl`, and `usdz`
 - if the file is not directly previewable, report the download path and explain why preview was skipped
 - keep the viewer step separate from the Tripo generation step; the viewer is only for the downloaded local artifact

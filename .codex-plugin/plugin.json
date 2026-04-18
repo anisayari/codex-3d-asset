@@ -1,7 +1,7 @@
 {
   "name": "codex-3d-asset",
-  "version": "0.3.1",
-  "description": "Pure Codex plugin for shadowless white-background 3D asset references, confirmable direct Tripo API workflows, Codex-delivered local preview links, and selectable download formats.",
+  "version": "0.4.0",
+  "description": "Codex plugin for shadowless white-background 3D asset references, confirmable direct Tripo API workflows, widget-driven local preview, and selectable download formats.",
   "author": {
     "name": "Anis Ayari",
     "email": "anis.ayari.perso@gmail.com",
@@ -19,10 +19,11 @@
     "image-generation"
   ],
   "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Codex 3D Asset",
-    "shortDescription": "Generate Tripo-ready reference images in Codex, confirm the handoff, return a local preview link, and choose the download format.",
-    "longDescription": "Instruction-only Codex plugin for 3D asset workflows. It resolves style, uses native image generation, enforces shadowless white-background references with no floor gradient or ground plane, applies front-view T-pose rules for characters, checks TRIPO_API_KEY before handoff, asks for confirmation before spending Tripo credits unless the user explicitly wants immediate continuation, uses the Tripo API directly instead of browser automation, returns a local viewer link in Codex after previewable downloads, and supports selectable output download formats with glb as the default.",
+    "shortDescription": "Generate Tripo-ready reference images in Codex, confirm the handoff, open a 3D preview widget, and choose the download format.",
+    "longDescription": "Codex plugin for 3D asset workflows. It resolves style, uses native image generation, enforces shadowless white-background references with no floor gradient or ground plane, applies front-view T-pose rules for characters, checks TRIPO_API_KEY before handoff, asks for confirmation before spending Tripo credits unless the user explicitly wants immediate continuation, uses the Tripo API directly instead of browser automation, exposes a local MCP widget for fullscreenable 3D preview, and supports selectable output download formats with glb as the default.",
     "developerName": "Anis Ayari",
     "category": "Productivity",
     "capabilities": [

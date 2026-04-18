@@ -1,6 +1,6 @@
 # Codex 3D Asset
 
-`codex-3d-asset` is a pure Codex plugin.
+`codex-3d-asset` is a Codex plugin with a local MCP preview widget.
 
 It gives Codex a clear workflow for:
 
@@ -13,7 +13,7 @@ It gives Codex a clear workflow for:
 - preparing asset packs from reusable templates
 - handing the result off to Tripo through the official API inside Codex
 - asking for explicit user confirmation before spending Tripo credits when needed
-- returning a localhost 3D viewer link in Codex after a previewable model is downloaded
+- opening a local 3D preview widget in Codex after a previewable model is downloaded
 
 ## Plugin Contents
 
@@ -21,6 +21,8 @@ It gives Codex a clear workflow for:
 - `skills/codex-3d-asset/SKILL.md`: plugin workflow and operating rules
 - `assets/icon.svg`: plugin icon
 - `assets/soldier-helmet-logo.png`: plugin logo
+- `.mcp.json`: local MCP server entrypoint for the preview widget
+- `package.json`: local widget server dependencies
 - `data/setup.json`: required setup values
 - `data/download-formats.json`: download format defaults and conversion rules
 - `data/tripo-api.json`: Tripo API workflow reference
@@ -31,6 +33,8 @@ It gives Codex a clear workflow for:
 - `data/assets/`: bundled sample assets and textures
 - `docs/AGENTS.example.md`: persistent-preferences template
 - `viewer/index.html`: local 3D preview page
+- `mcp-server/server.mjs`: local MCP server for the preview widget
+- `mcp-server/public/asset-preview-widget.html`: Codex preview widget UI
 
 ## Install
 
@@ -47,6 +51,15 @@ Copy the plugin into your local Codex plugins directory:
 mkdir -p ~/plugins/codex-3d-asset
 rsync -a --delete --exclude .git ./ ~/plugins/codex-3d-asset/
 ```
+
+Install the local MCP widget dependencies:
+
+```bash
+cd ~/plugins/codex-3d-asset
+npm install
+```
+
+Then refresh Codex so the new local MCP tool descriptors are reloaded.
 
 Make sure `~/.agents/plugins/marketplace.json` contains this entry:
 
@@ -196,7 +209,8 @@ The skill is designed to keep the workflow inside Codex:
 - avoid Playwright and browser automation for Tripo
 - ask for confirmation before launching Tripo 3D generation when the reference image is ready
 - continue directly to the Tripo API after the user confirms
-- return the local preview URL in the Codex response instead of trying to drive a browser for preview
+- prefer the local `show_3d_asset_widget` MCP tool for preview
+- fall back to the local preview URL only if the widget tool is unavailable
 
 If `TRIPO_API_KEY` is missing, the plugin should stop before the Tripo step and ask for setup.
 
@@ -220,7 +234,7 @@ Behavior:
 
 ## Local 3D Preview
 
-After a model is downloaded, the plugin should prepare a localhost preview page URL and return it in Codex.
+After a model is downloaded, the plugin should prefer the local preview widget in Codex.
 
 The bundled viewer lives here:
 
@@ -230,13 +244,16 @@ Recommended flow:
 
 - start a local server rooted high enough to serve both the viewer and the generated model file
 - build the viewer URL with `?model=/relative/path/to/model.glb`
-- return that localhost URL as a Markdown link in the Codex response when the artifact is previewable
+- call `show_3d_asset_widget` with that viewer URL when the widget tool is available
+- let the widget request fullscreen on mount and point its open-in-app target at the local viewer
+- return the localhost URL as a Markdown link only when the widget tool is unavailable
 - if the conversion output is a zip, extract it first and preview the first supported asset inside
 
-Current practical constraint:
+Practical note:
 
-- in the plugin surface I could validate here, I do not see a dedicated Codex plugin API for force-opening a live localhost webview in the side panel
-- the safe plugin behavior is therefore to return the ready-to-open localhost viewer link in the Codex thread and avoid Playwright entirely for preview
+- the widget is delivered through the plugin's local MCP server, not through Playwright
+- the widget can ask the host for fullscreen with `window.openai.requestDisplayMode(...)`, but the host still decides whether to grant that request
+- the widget also sets the host open-in-app target to the local viewer URL
 
 The local viewer is intended for:
 

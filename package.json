@@ -1,0 +1,14 @@
+{
+  "name": "codex-3d-asset",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "widget:mcp": "node ./mcp-server/server.mjs",
+    "check:widget": "node ./mcp-server/smoke-test.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/ext-apps": "^1.0.1",
+    "@modelcontextprotocol/sdk": "^1.20.2",
+    "zod": "^3.25.76"
+  }
+}

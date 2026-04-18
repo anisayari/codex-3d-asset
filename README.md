@@ -119,14 +119,44 @@ Typical pattern:
 - repository `AGENTS.md` for shared team defaults
 - nested `AGENTS.md` or `AGENTS.override.md` for local overrides
 
+Recommended shape for this plugin:
+
+```md
+## Codex 3D Asset preferences
+- Default style: low_poly
+- Default Tripo download format: glb
+- Prefer Tripo model version: P1-20260311
+- Default texture quality: standard
+- Default face limit for low_poly assets: 3500
+- For characters, always use a front-view T-pose
+- For reference images, always use a seamless pure white background with no cast shadow, no contact shadow, and no ambient shadow
+```
+
+If you keep using the same style or format, put it there once and let the plugin reuse it automatically.
+
 ## Setup
 
 Tripo handoff requires `TRIPO_API_KEY`.
+
+This is not stored in the plugin manifest. The plugin expects the key to already exist in the environment available to Codex.
 
 Set it before starting the workflow:
 
 ```bash
 export TRIPO_API_KEY="tsk_..."
+```
+
+Typical places to configure it:
+
+- in your shell startup file such as `~/.zshrc` or `~/.bashrc`
+- in the environment used to launch Codex
+- temporarily in the current terminal session before starting Codex
+
+Example:
+
+```bash
+echo 'export TRIPO_API_KEY="tsk_..."' >> ~/.zshrc
+source ~/.zshrc
 ```
 
 The plugin should check for `TRIPO_API_KEY` before it starts a Tripo handoff. If the key is missing, it should stop immediately and ask for setup instead of generating the image and stalling later.

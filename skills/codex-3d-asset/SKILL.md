@@ -16,7 +16,9 @@ Use these files as the plugin's static data:
 - `../../data/setup.json`
 - `../../data/download-formats.json`
 - `../../data/handoff-flow.json`
+- `../../data/tripo-credit-policy.json`
 - `../../data/tripo-api.json`
+- `../../data/style-example-gallery.json`
 - `../../data/style-presets.json`
 - `../../data/reference-rules.json`
 - `../../data/pack-templates/football-match-low-poly.json`
@@ -40,6 +42,7 @@ Use these files as the plugin's static data:
   - default texture quality or face limit
 - If an `AGENTS.md` preference conflicts with an explicit user request in the current conversation, the current conversation wins.
 - If `AGENTS.md` already gives a default style or default download format, do not ask again.
+- If `AGENTS.md` includes Tripo credit estimates, use them in the final confirmation before spending credits.
 - Suggest updating `AGENTS.md` only when the same preference keeps recurring across requests.
 
 ## Core Rules
@@ -61,18 +64,27 @@ Use these files as the plugin's static data:
 - If the user provides example images, use them as the main style reference.
 - If neither style nor references are provided, ask exactly one short question in English and include the subject when known:
   `Which style should I use for the horse: low poly, highly detailed, photorealistic, stylized, toon, or voxel?`
+- When asking that question in the Codex desktop app, show the bundled style example gallery first.
+- Prefer the labeled gallery sheet at `../../assets/style-examples/style-gallery.png`.
+- Resolve the absolute path before rendering local images in Markdown.
+- If helpful, you may also show the individual labeled example images from `../../data/style-example-gallery.json` or `../../data/style-presets.json`.
 - If you must continue without an answer:
   - default to `low_poly` for game asset packs
   - default to `stylized` for one-off characters or props
 - Once the user answers the style question, continue automatically. Do not stop after the image is generated. Do not wait for another confirmation unless a required secret is missing.
 - Before spending Tripo credits, show the generated reference image and ask for one short confirmation unless the user explicitly said to continue without confirmation.
 - Do not ask the user to run `npm install` for this plugin during normal use. The bundled MCP bootstrap should install missing local Node dependencies automatically on first launch.
+- If `TRIPO_API_KEY` is missing, prefer asking the user to paste it directly in the chat instead of only telling them to retry later.
+- If the user pastes a valid `tsk_...` key in chat, use it for the current workflow immediately, do not echo the full key back, and do not ask them to repeat the original prompt.
+- If the user explicitly asks Codex to configure `TRIPO_API_KEY` for them and provides the key, Codex may configure it for the current tool session immediately.
+- Persist `TRIPO_API_KEY` only when the user explicitly asks for persistence, for example in `~/.zshrc`.
 
 ## Handoff Discipline
 
 - Do not stop on a bare `Image generated` result when the request includes Tripo handoff.
 - If confirmation is required, your next assistant message after the image must be the confirmation question from `../../data/handoff-flow.json`.
 - If the user confirms, continue with the Tripo API immediately in the same turn.
+- If the user requests edits to the generated reference image, revise the image first and restart the approval step for the revised image.
 - Do not switch to Playwright, browser automation, or the Tripo website for the generation step.
 - Do not use Playwright or browser automation for the preview step either.
 - When the model download finishes, prefer the `show_3d_asset_widget` tool when it is available.
@@ -94,21 +106,31 @@ Use these files as the plugin's static data:
 4. If `AGENTS.md` defines a default download format and the user did not override it, use that format.
 5. If the user does not specify a format and no persistent preference exists, default to `glb` and continue without asking.
 6. If the user wants a Tripo handoff, check `TRIPO_API_KEY` before generating the image.
-7. If `TRIPO_API_KEY` is missing, stop immediately and give the setup instruction from `../../data/setup.json`.
-8. If the request is a pack, load the pack template and adapt it.
-9. Generate the reference image with Codex using the white-background no-shadow rules.
-10. If the user asked for Tripo handoff, ask for a short confirmation after the reference image is ready:
-    `The reference image is ready. Do you want me to launch the Tripo 3D generation now?`
-11. If the user confirms, continue to the Tripo API step in the same turn.
+7. If `TRIPO_API_KEY` is missing, ask exactly one short follow-up using `../../data/setup.json`:
+   ask the user to paste the key in chat now, and include both the official Tripo API docs link and the direct API key page when useful.
+8. If the user provides a valid `tsk_...` key in chat, continue the same workflow immediately without asking them to resend the original request.
+9. If the user explicitly asks Codex to configure the key and provides it, Codex may export it for the current session immediately or persist it when explicitly requested.
+10. If the request is a pack, load the pack template and adapt it.
+11. Generate the reference image with Codex using the white-background no-shadow rules.
+12. If the user requests changes to that image, edit or regenerate the current reference image and stay in the reference-image loop until they approve it.
+13. If the user asked for Tripo handoff, ask for a short confirmation after the reference image is ready:
+    - use the credit-aware confirmation rule from `../../data/handoff-flow.json`
+    - include a credit estimate when available from `../../data/tripo-credit-policy.json`, `AGENTS.md`, or current workspace metadata
+    - if no reliable estimate exists, say so explicitly and do not invent one
+14. If the user confirms, continue to the Tripo API step in the same turn.
 
 ## Tripo Step
 
 When Tripo handoff is requested:
 
 - use the official Tripo API described in `../../data/tripo-api.json`
+- use `../../data/tripo-credit-policy.json` for cost disclosure behavior
 - stay inside the current Codex tool environment
 - do not open the Tripo website in Playwright or browser automation
 - do not use a browser session when the API can perform the task
+- if API access is not set up yet, give the user both the official docs link and the direct API key page from `../../data/setup.json` or `../../data/tripo-api.json`
+- before launching the 3D task, disclose the credit estimate when a reliable estimate is available
+- if the exact per-task credit amount is not verified from the current official docs, say that clearly instead of inventing a number
 - keep the upload tied to the generated reference image used in the conversation
 - use API upload, task creation, and task polling directly
 - report the final task status instead of stopping at `Image generated`
@@ -131,6 +153,7 @@ After a model file is available:
 - if `../../.codex-runtime/viewer.json` exists, read it and use its `viewerUrlBase`, `activePort`, `entryPath`, and `previewOutputPrefix`
 - if the runtime file is missing, fall back to the default local viewer settings from `../../data/handoff-flow.json`
 - build the viewer URL with a `model` query parameter pointing to the generated asset under `/outputs/...`
+- rely on the viewer's generated-asset browser instead of exposing a raw model-path field to the user
 - if `show_3d_asset_widget` is available, call it instead of only returning a link
 - the widget should request fullscreen on mount and set the host open-in-app target to the local viewer URL
 - if the widget tool is unavailable, return that localhost viewer URL as a Markdown link in the Codex response
@@ -156,8 +179,16 @@ Report back with:
 - the selected or inferred style
 - whether example images were used
 - the reference image path
+- whether the user requested any image revisions before the 3D handoff
 - the requested download format
+- the disclosed Tripo credit estimate or the reason no exact estimate was available
 - whether Tripo API handoff was completed in-session
 - the downloaded output path under `outputs/` when preview was prepared
 - the localhost viewer URL when a preview was launched
 - any downloaded model paths when available
+
+When asking the style question, prefer this structure:
+
+1. Show the bundled gallery image inline.
+2. Ask the style question in English immediately after the gallery.
+3. Keep the wording short.

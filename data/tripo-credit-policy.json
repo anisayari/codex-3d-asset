@@ -1,0 +1,18 @@
+{
+  "officialSources": [
+    "https://platform.tripo3d.ai/docs/introduction",
+    "https://platform.tripo3d.ai/api-keys",
+    "https://www.tripo3d.ai/blog/announcement-tripo-openapi-platform-payment-system",
+    "https://www.tripo3d.ai/pricing"
+  ],
+  "pricePerCreditUsd": 0.01,
+  "newApiKeyFreeCredits": 2000,
+  "exactPerTaskCreditsVerifiedFromOfficialDocs": false,
+  "estimatePriority": [
+    "explicit user-provided credit estimate",
+    "AGENTS.md project or personal defaults",
+    "current Tripo workspace or API metadata when available in the active tool context"
+  ],
+  "fallbackRuleWhenExactCreditsUnknown": "Do not invent an exact per-task credit amount. Say that the current official docs confirm credit-based billing, 2,000 free credits on first API key generation, and $0.01 per additional credit, but do not provide a verified exact per-task credit figure in the currently verified sources.",
+  "confirmationRule": "Always ask for approval before spending Tripo credits. Include the credit estimate when available. Otherwise say that the exact per-task credit amount is not verified from the current official docs."
+}

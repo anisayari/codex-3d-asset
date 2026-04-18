@@ -27,7 +27,9 @@ It gives Codex a clear workflow for:
 - `package.json`: local widget server dependencies and scripts
 - `data/setup.json`: required setup values
 - `data/download-formats.json`: download format defaults and conversion rules
+- `data/tripo-credit-policy.json`: Tripo credit disclosure rules
 - `data/tripo-api.json`: Tripo API workflow reference
+- `data/style-example-gallery.json`: bundled visual style chooser
 - `data/style-presets.json`: canonical style labels and defaults
 - `data/reference-rules.json`: image-generation constraints
 - `data/handoff-flow.json`: Tripo confirmation and preview flow
@@ -95,6 +97,8 @@ Two things are still necessarily manual:
 - the plugin must exist in a Codex marketplace and be installed once
 - `TRIPO_API_KEY` must already be present in the environment available to Codex
 
+If the key is missing during a Tripo request, the plugin should ask the user to paste it directly in the chat and continue the same workflow after they provide it.
+
 If you do not already have a marketplace file, the minimal shape is:
 
 ```json
@@ -140,6 +144,7 @@ For this plugin, that is a good fit for preferences such as:
 - preferred Tripo model version
 - default texture quality
 - face-limit defaults
+- optional Tripo credit estimates when you know them from your current workspace
 
 If you keep asking for the same style or format, put it in `AGENTS.md` instead of repeating it in every chat.
 
@@ -162,6 +167,8 @@ Recommended shape for this plugin:
 - Prefer Tripo model version: P1-20260311
 - Default texture quality: standard
 - Default face limit for low_poly assets: 3500
+- Estimated Tripo image_to_model credits: [set from your current Tripo workspace if known]
+- Estimated Tripo convert_model credits: [set from your current Tripo workspace if known]
 - For characters, always use a front-view T-pose
 - For reference images, always use a seamless pure white background with no cast shadow, no contact shadow, and no ambient shadow
 ```
@@ -175,6 +182,14 @@ Tripo handoff requires `TRIPO_API_KEY`.
 This is not stored in the plugin manifest. The plugin expects the key to already exist in the environment available to Codex.
 
 The plugin can check whether the key exists, but it cannot invent or provision that secret for the user.
+
+Recommended fallback when the key is missing:
+
+- ask the user to paste `TRIPO_API_KEY` directly in the chat for the current workflow
+- if they do not have API access yet, give them the official Tripo API docs link: [platform.tripo3d.ai/docs/introduction](https://platform.tripo3d.ai/docs/introduction)
+- also tell them to retrieve or create the key here: [platform.tripo3d.ai/api-keys](https://platform.tripo3d.ai/api-keys)
+- if they paste a valid `tsk_...` key, continue without asking them to repeat the original request
+- if they explicitly ask Codex to configure the key for them, Codex may export it for the current session, or persist it when they explicitly ask for persistence
 
 Set it before starting the workflow:
 
@@ -195,7 +210,26 @@ echo 'export TRIPO_API_KEY="tsk_..."' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-The plugin should check for `TRIPO_API_KEY` before it starts a Tripo handoff. If the key is missing, it should stop immediately and ask for setup instead of generating the image and stalling later.
+The plugin should check for `TRIPO_API_KEY` before it starts a Tripo handoff. If the key is missing, it should ask for the key directly in chat first, or point the user to the official Tripo API docs if they do not have access yet, instead of only telling them to retry later.
+
+## Image Revision Loop
+
+Before the Tripo step, the reference image stays editable.
+
+Expected behavior:
+
+- generate the reference image first
+- let the user request image changes
+- revise the current image instead of jumping straight to Tripo
+- ask for Tripo confirmation only after the current reference image is approved
+
+Typical examples:
+
+- `Make the saber teeth longer`
+- `Keep the pose but make the fur darker`
+- `Use a more stylized low poly look`
+
+The plugin should not spend Tripo credits until the approved reference image is ready.
 
 ## Style Handling
 
@@ -210,11 +244,22 @@ The plugin supports these styles:
 
 If the user does not specify a style and does not provide reference images, the plugin asks one short question in English before generating the reference.
 
+The plugin can also show a bundled visual style chooser before asking.
+
+![Style Gallery](./assets/style-examples/style-gallery.png)
+
 Use the subject in the question when possible, for example:
 
 `Which style should I use for the horse: low poly, highly detailed, photorealistic, stylized, toon, or voxel?`
 
 If `AGENTS.md` already defines a default style, the plugin should use it and skip the question.
+
+Preferred behavior in Codex:
+
+- show the bundled style gallery image first
+- keep each example labeled directly on the image
+- ask the style question right after the gallery
+- if the user asks for closer inspection, show the individual style images too
 
 ## Tripo Handoff
 
@@ -233,9 +278,23 @@ The skill is designed to keep the workflow inside Codex:
 
 If `TRIPO_API_KEY` is missing, the plugin should stop before the Tripo step and ask for setup.
 
+Better fallback wording:
+
+`I can continue and do the full Tripo handoff if you paste your TRIPO_API_KEY here. If you do not have API access yet, use the official docs: https://platform.tripo3d.ai/docs/introduction and get your key here: https://platform.tripo3d.ai/api-keys`
+
 Recommended confirmation prompt:
 
-`The reference image is ready. Do you want me to launch the Tripo 3D generation now?`
+- when a reliable estimate exists:
+  `The reference image is ready. Do you want me to launch the Tripo 3D generation now? Estimated Tripo cost: <credits> credits (~$<usd>).`
+- when no reliable exact estimate exists from the current official docs or workspace:
+  `The reference image is ready. Do you want me to launch the Tripo 3D generation now? I do not have a verified exact per-task credit amount from the current official Tripo docs, so I will only proceed after your approval.`
+
+I checked current official Tripo sources and verified two stable billing facts:
+
+- new API keys start with 2,000 free credits
+- additional API credits are priced at $0.01 each
+
+I did not find a verified official per-task credit table in the currently accessible official sources, so the plugin should not invent an exact credit number when that information is unavailable.
 
 ## Download Format
 
@@ -265,6 +324,7 @@ Recommended flow:
 - save previewable files inside `outputs/`
 - read `.codex-runtime/viewer.json` when present and use its `viewerUrlBase` and `entryPath`
 - build the viewer URL with `?model=/outputs/.../file.glb`
+- let the viewer expose generated assets through its built-in dropdown and mini asset picker instead of showing a raw load-path field
 - call `show_3d_asset_widget` with that viewer URL when the widget tool is available
 - let the widget request fullscreen on mount and point its open-in-app target at the local viewer
 - return the localhost URL as a Markdown link only when the widget tool is unavailable

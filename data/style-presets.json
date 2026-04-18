@@ -1,6 +1,7 @@
 {
   "low_poly": {
     "display_name": "Low Poly",
+    "example_image": "../../assets/style-examples/low-poly.png",
     "aliases": ["low poly", "lowpoly", "game ready", "mobile game", "stylized low poly"],
     "image_prompt_suffix": "clean low poly game asset, simplified geometry, readable silhouette, chunky forms, limited fine detail, consistent stylized materials",
     "tripo_defaults": {
@@ -11,6 +12,7 @@
   },
   "highly_detailed": {
     "display_name": "Highly Detailed",
+    "example_image": "../../assets/style-examples/highly-detailed.png",
     "aliases": ["highly detailed", "ultra detailed", "detailed", "high detail"],
     "image_prompt_suffix": "highly detailed asset with rich surface detail, intricate material breakup, refined forms, premium hero-asset presentation",
     "tripo_defaults": {
@@ -22,6 +24,7 @@
   },
   "photorealistic": {
     "display_name": "Photorealistic",
+    "example_image": "../../assets/style-examples/photorealistic.png",
     "aliases": ["photorealistic", "photo realistic", "realistic", "photo realiste", "photoréaliste"],
     "image_prompt_suffix": "photorealistic asset, realistic proportions, realistic materials, realistic lighting response, production-grade surface realism",
     "tripo_defaults": {
@@ -33,6 +36,7 @@
   },
   "stylized": {
     "display_name": "Stylized",
+    "example_image": "../../assets/style-examples/stylized.png",
     "aliases": ["stylized", "stylisé", "stylized 3d", "artistique"],
     "image_prompt_suffix": "stylized 3D asset with strong shape language, cohesive exaggerated forms, polished game-art readability",
     "tripo_defaults": {
@@ -44,6 +48,7 @@
   },
   "toon": {
     "display_name": "Toon",
+    "example_image": "../../assets/style-examples/toon.png",
     "aliases": ["toon", "cartoon", "cartoony", "anime"],
     "image_prompt_suffix": "toon-styled 3D asset, bold readable shapes, simplified shading, animation-friendly silhouette",
     "tripo_defaults": {
@@ -55,6 +60,7 @@
   },
   "voxel": {
     "display_name": "Voxel",
+    "example_image": "../../assets/style-examples/voxel.png",
     "aliases": ["voxel", "blocky", "minecraft style"],
     "image_prompt_suffix": "voxel-inspired blocky asset, cubic forms, simple color breakup, readable silhouette",
     "tripo_defaults": {

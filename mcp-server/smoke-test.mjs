@@ -1,3 +1,4 @@
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import http from "node:http";
 import net from "node:net";
 import path from "node:path";
@@ -62,7 +63,44 @@ function readHealth(port) {
   });
 }
 
+function readGeneratedAssets(port) {
+  return new Promise((resolve, reject) => {
+    const request = http.get(
+      {
+        hostname: "127.0.0.1",
+        port,
+        path: "/__codex_3d_asset_assets",
+        timeout: 1500,
+      },
+      (response) => {
+        let body = "";
+        response.setEncoding("utf8");
+        response.on("data", (chunk) => {
+          body += chunk;
+        });
+        response.on("end", () => {
+          try {
+            resolve(JSON.parse(body));
+          } catch (error) {
+            reject(error);
+          }
+        });
+      }
+    );
+
+    request.on("timeout", () => {
+      request.destroy(new Error("viewer asset request timed out"));
+    });
+    request.on("error", reject);
+  });
+}
+
 const viewerPort = await findFreePort();
+const smokeOutputDir = path.join(ROOT_DIR, "outputs", "smoke-test");
+const smokeAssetPath = path.join(smokeOutputDir, "smoke-test-knight.glb");
+mkdirSync(smokeOutputDir, { recursive: true });
+writeFileSync(smokeAssetPath, "");
+
 const transport = new StdioClientTransport({
   command: "node",
   args: ["./mcp-server/bootstrap.mjs"],
@@ -95,31 +133,42 @@ if (health?.entryPath !== "/viewer/index.html") {
   throw new Error("Viewer bootstrap did not expose the expected entry path");
 }
 
-const callResult = await client.callTool({
-  name: "show_3d_asset_widget",
-  arguments: {
-    viewerUrl: `http://127.0.0.1:${viewerPort}/viewer/index.html?model=/outputs/smoke-test-knight.glb`,
-    assetName: "Smoke Test Knight",
-    format: "glb",
-    autoFullscreen: true,
-  },
-});
+try {
+  const assetsPayload = await readGeneratedAssets(viewerPort);
+  const smokeAsset = assetsPayload?.assets?.find((asset) => asset.modelPath === "/outputs/smoke-test/smoke-test-knight.glb");
+  if (!smokeAsset) {
+    throw new Error("Viewer asset browser did not expose the generated smoke-test asset");
+  }
 
-if (callResult?.structuredContent?.assetName !== "Smoke Test Knight") {
-  throw new Error("Tool call did not return the expected structured content");
-}
-
-console.log(
-  JSON.stringify(
-    {
-      toolName: tool.name,
-      resourceUri: tool?._meta?.ui?.resourceUri,
-      viewerHealth: health,
-      callStructuredContent: callResult.structuredContent,
+  const callResult = await client.callTool({
+    name: "show_3d_asset_widget",
+    arguments: {
+      viewerUrl: `http://127.0.0.1:${viewerPort}/viewer/index.html?model=/outputs/smoke-test/smoke-test-knight.glb`,
+      assetName: "Smoke Test Knight",
+      format: "glb",
+      autoFullscreen: true,
     },
-    null,
-    2
-  )
-);
+  });
 
-await client.close();
+  if (callResult?.structuredContent?.assetName !== "Smoke Test Knight") {
+    throw new Error("Tool call did not return the expected structured content");
+  }
+
+  console.log(
+    JSON.stringify(
+      {
+        toolName: tool.name,
+        resourceUri: tool?._meta?.ui?.resourceUri,
+        viewerHealth: health,
+        generatedAssetsCount: assetsPayload.count,
+        smokeAsset,
+        callStructuredContent: callResult.structuredContent,
+      },
+      null,
+      2
+    )
+  );
+} finally {
+  await client.close();
+  rmSync(smokeOutputDir, { recursive: true, force: true });
+}

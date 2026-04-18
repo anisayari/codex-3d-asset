@@ -4,6 +4,8 @@
     "type": "bearer",
     "envVar": "TRIPO_API_KEY"
   },
+  "docsUrl": "https://platform.tripo3d.ai/docs/introduction",
+  "apiKeysUrl": "https://platform.tripo3d.ai/api-keys",
   "workflow": [
     {
       "name": "uploadReferenceImage",
@@ -47,6 +49,8 @@
   "notes": [
     "Prefer direct API calls over browser automation.",
     "Check the API key before generating the reference when the user asked for Tripo handoff.",
+    "If the key is missing, ask the user to paste TRIPO_API_KEY in chat or configure it in the environment, and include both the official docs link and the direct API key page.",
+    "If the user provides a valid tsk_ key in chat, continue the current workflow without asking them to repeat the original request.",
     "Continue automatically after image generation when the key is present.",
     "GLB is the default direct download from generation output.",
     "FBX, GLTF, OBJ, STL, and USDZ use convert_model after generation succeeds.",

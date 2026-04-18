@@ -156,7 +156,7 @@
         <div class="actions">
           <button id="fullscreenButton" type="button">Open Fullscreen</button>
           <button id="retryFrameButton" type="button" class="secondary">Reload Embedded Preview</button>
-          <a id="viewerLink" class="button secondary" href="#" target="_blank" rel="noreferrer">Open Viewer URL</a>
+          <a id="viewerLink" class="button secondary" href="#" target="_blank" rel="noreferrer">Open Viewer</a>
         </div>
       </section>
 
@@ -168,7 +168,7 @@
           <div>
             <strong>Loading local preview...</strong>
             <div style="margin-top: 8px;">
-              If the embedded frame is blocked, use <em>Open Fullscreen</em> or <em>Open Viewer URL</em>.
+              If the embedded frame is blocked, use <em>Open Fullscreen</em> or <em>Open Viewer</em>.
             </div>
           </div>
         </div>
@@ -176,7 +176,7 @@
 
       <section class="footer">
         <div id="notes">The widget will request fullscreen automatically when the host allows it.</div>
-        <div id="viewerUrl" style="margin-top: 6px;"></div>
+        <div id="viewerHint" style="margin-top: 6px;">The generated asset browser stays inside Codex.</div>
       </section>
     </div>
 
@@ -184,7 +184,7 @@
       const assetNameEl = document.getElementById("assetName");
       const metaEl = document.getElementById("meta");
       const notesEl = document.getElementById("notes");
-      const viewerUrlEl = document.getElementById("viewerUrl");
+      const viewerHintEl = document.getElementById("viewerHint");
       const statusEl = document.getElementById("status");
       const viewerLinkEl = document.getElementById("viewerLink");
       const frameEl = document.getElementById("viewerFrame");
@@ -247,7 +247,9 @@
         assetNameEl.textContent = assetName;
         metaEl.textContent = format ? `Preview format: ${format}` : "Preview ready.";
         notesEl.textContent = notes;
-        viewerUrlEl.innerHTML = viewerUrl ? `<code>${viewerUrl}</code>` : "No viewer URL.";
+        viewerHintEl.textContent = viewerUrl
+          ? "The viewer opens with the generated asset list already selected."
+          : "No viewer target is available yet.";
         viewerLinkEl.href = viewerUrl || "#";
         viewerLinkEl.setAttribute("aria-disabled", viewerUrl ? "false" : "true");
 

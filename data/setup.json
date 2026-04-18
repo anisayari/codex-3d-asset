@@ -4,8 +4,16 @@
     "required": true,
     "requiredPrefix": "tsk_",
     "usedFor": "Direct Tripo API handoff after Codex image generation",
-    "missingMessage": "Tripo handoff needs TRIPO_API_KEY configured before the workflow can continue.",
-    "setupInstruction": "Set TRIPO_API_KEY in your shell or Codex environment, then retry the same prompt.",
-    "shellExample": "export TRIPO_API_KEY=\"tsk_...\""
+    "missingMessage": "Tripo handoff needs TRIPO_API_KEY before the workflow can continue.",
+    "promptForUserKey": "I can continue and do the full Tripo handoff if you paste your TRIPO_API_KEY here.",
+    "continueBehaviorAfterUserKey": "If the user provides a valid tsk_ key in chat, use it for the current workflow immediately and continue without asking them to restate the original request.",
+    "codexCanConfigureKeyWhenAsked": true,
+    "codexConfigurationRule": "If the user explicitly asks Codex to configure the key for them and provides the key, Codex may export it for the current tool session immediately. If the user explicitly asks for persistence, Codex may append it to the user's shell startup file or other requested environment configuration.",
+    "codexConfigurationSafety": "Do not echo the full key back in normal responses. Only persist it when the user explicitly asks for persistence.",
+    "setupInstruction": "If you prefer not to paste the key in chat, set TRIPO_API_KEY in your shell or Codex environment and retry.",
+    "shellExample": "export TRIPO_API_KEY=\"tsk_...\"",
+    "docsUrl": "https://platform.tripo3d.ai/docs/introduction",
+    "apiKeysUrl": "https://platform.tripo3d.ai/api-keys",
+    "linkInstruction": "If the user does not have API access yet, give them the official Tripo API docs link and the direct Tripo API key page."
   }
 }

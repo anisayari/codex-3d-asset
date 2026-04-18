@@ -1,8 +1,13 @@
 {
   "confirmBeforeTripoGeneration": true,
   "confirmationPrompt": "The reference image is ready. Do you want me to launch the Tripo 3D generation now?",
+  "confirmationPromptWithCost": "The reference image is ready. Do you want me to launch the Tripo 3D generation now? Estimated Tripo cost: <credit_estimate> credits<usd_suffix>.",
+  "confirmationPromptWhenExactCostUnknown": "The reference image is ready. Do you want me to launch the Tripo 3D generation now? I do not have a verified exact per-task credit amount from the current official Tripo docs, so I will only proceed after your approval.",
   "skipConfirmationWhenExplicitlyRequested": true,
   "postConfirmationBehavior": "continue immediately with the Tripo API in the same turn",
+  "allowReferenceImageRevisionLoop": true,
+  "revisionLoopRule": "If the user requests changes to the generated reference image, revise the image first and ask the Tripo confirmation question again only after the revised image is ready.",
+  "neverGenerate3DWithoutApprovalOfCurrentReference": true,
   "localViewer": {
     "enabled": true,
     "reportViewerUrlInCodexResponse": true,

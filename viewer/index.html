@@ -37,17 +37,24 @@
 
       .layout {
         display: grid;
-        grid-template-rows: auto 1fr;
+        grid-template-rows: auto auto 1fr;
         height: 100%;
       }
 
       .topbar {
-        display: flex;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
         gap: 12px;
-        align-items: center;
+        align-items: end;
         padding: 12px 14px;
         border-bottom: 1px solid var(--border);
         background: rgba(15, 17, 23, 0.96);
+      }
+
+      .title-wrap {
+        display: grid;
+        gap: 4px;
+        min-width: 0;
       }
 
       .title {
@@ -56,16 +63,21 @@
         white-space: nowrap;
       }
 
+      .subtitle {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
       .controls {
         display: flex;
         gap: 8px;
-        flex: 1;
-        min-width: 0;
+        min-width: min(520px, 100%);
+        justify-self: end;
       }
 
-      .controls input {
-        flex: 1;
-        min-width: 0;
+      .controls select,
+      .controls button {
         background: var(--panel);
         color: var(--text);
         border: 1px solid var(--border);
@@ -77,18 +89,114 @@
       .controls button {
         background: var(--accent);
         color: #042624;
-        border: 0;
-        border-radius: 6px;
-        padding: 10px 14px;
-        font: inherit;
         font-weight: 600;
         cursor: pointer;
+      }
+
+      .controls select {
+        min-width: 280px;
+        max-width: 420px;
       }
 
       .status {
         color: var(--muted);
         font-size: 12px;
         white-space: nowrap;
+        align-self: center;
+      }
+
+      .asset-strip {
+        display: flex;
+        gap: 10px;
+        padding: 12px 14px;
+        overflow-x: auto;
+        border-bottom: 1px solid var(--border);
+        background: rgba(12, 14, 20, 0.96);
+      }
+
+      .asset-tile {
+        min-width: 132px;
+        max-width: 132px;
+        display: grid;
+        gap: 8px;
+        padding: 10px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--panel);
+        color: var(--text);
+        text-align: left;
+        cursor: pointer;
+        transition: border-color 120ms ease, background 120ms ease, transform 120ms ease;
+      }
+
+      .asset-tile:hover {
+        border-color: #3d4962;
+        background: #1b2030;
+        transform: translateY(-1px);
+      }
+
+      .asset-tile.active {
+        border-color: var(--accent);
+        box-shadow: inset 0 0 0 1px rgba(25, 184, 176, 0.2);
+      }
+
+      .asset-thumb {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background:
+          radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 0.22), transparent 40%),
+          linear-gradient(145deg, rgba(25, 184, 176, 0.2), rgba(143, 176, 255, 0.12)),
+          #11151e;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .asset-thumb::before,
+      .asset-thumb::after {
+        content: "";
+        position: absolute;
+        inset: 50% auto auto 50%;
+        width: 42px;
+        height: 42px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 4px;
+        transform-origin: center;
+      }
+
+      .asset-thumb::before {
+        transform: translate(-50%, -50%) rotate(12deg);
+      }
+
+      .asset-thumb::after {
+        transform: translate(-50%, -50%) rotate(-14deg) scale(0.75);
+        opacity: 0.55;
+      }
+
+      .asset-name {
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.35;
+        min-height: 32px;
+        word-break: break-word;
+      }
+
+      .asset-meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 11px;
+        text-transform: uppercase;
+      }
+
+      .asset-empty {
+        padding: 16px 14px;
+        color: var(--muted);
+        font-size: 12px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(12, 14, 20, 0.96);
       }
 
       #viewer {
@@ -119,23 +227,51 @@
       .overlay strong {
         color: var(--text);
       }
+
+      .hidden {
+        display: none !important;
+      }
+
+      @media (max-width: 860px) {
+        .topbar {
+          grid-template-columns: 1fr;
+        }
+
+        .controls {
+          min-width: 0;
+          justify-self: stretch;
+          flex-wrap: wrap;
+        }
+
+        .controls select {
+          min-width: 0;
+          flex: 1 1 220px;
+          max-width: none;
+        }
+      }
     </style>
   </head>
   <body>
     <div class="layout">
       <div class="topbar">
-        <div class="title">Codex 3D Asset Viewer</div>
+        <div class="title-wrap">
+          <div class="title">Codex 3D Asset Viewer</div>
+          <div class="subtitle">Choose a generated asset directly from Codex.</div>
+        </div>
         <div class="controls">
-          <input id="modelPath" type="text" placeholder="Model URL or relative path" />
-          <button id="loadButton" type="button">Load</button>
+          <select id="assetSelect" aria-label="Generated assets">
+            <option value="">Scanning generated assets...</option>
+          </select>
+          <button id="refreshAssetsButton" type="button">Refresh</button>
         </div>
         <div id="status" class="status">Waiting for model</div>
       </div>
+      <div id="assetStrip" class="asset-strip hidden"></div>
+      <div id="assetEmpty" class="asset-empty hidden">No generated 3D assets found yet.</div>
       <div id="viewer">
         <div class="overlay">
-          <strong>Supported preview formats</strong><br />
-          GLB, GLTF, FBX, OBJ, STL, USDZ<br /><br />
-          Tip: pass <code>?model=/path/to/file.glb</code> in the viewer URL.
+          <strong id="overlayTitle">No asset selected</strong><br />
+          <span id="overlayBody">Generated assets will appear above when they are available.</span>
         </div>
       </div>
     </div>
@@ -152,8 +288,12 @@
 
       const container = document.getElementById("viewer");
       const statusEl = document.getElementById("status");
-      const inputEl = document.getElementById("modelPath");
-      const buttonEl = document.getElementById("loadButton");
+      const assetSelectEl = document.getElementById("assetSelect");
+      const refreshAssetsButtonEl = document.getElementById("refreshAssetsButton");
+      const assetStripEl = document.getElementById("assetStrip");
+      const assetEmptyEl = document.getElementById("assetEmpty");
+      const overlayTitleEl = document.getElementById("overlayTitle");
+      const overlayBodyEl = document.getElementById("overlayBody");
 
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -189,6 +329,8 @@
       scene.add(grid);
 
       let currentRoot = null;
+      let assets = [];
+      let currentAssetPath = "";
 
       function setStatus(message) {
         statusEl.textContent = message;
@@ -215,6 +357,165 @@
           }
         });
         currentRoot = null;
+      }
+
+      function formatBytes(sizeBytes) {
+        if (!Number.isFinite(sizeBytes) || sizeBytes <= 0) {
+          return "0 B";
+        }
+
+        const units = ["B", "KB", "MB", "GB"];
+        let value = sizeBytes;
+        let unitIndex = 0;
+        while (value >= 1024 && unitIndex < units.length - 1) {
+          value /= 1024;
+          unitIndex += 1;
+        }
+        return `${value >= 10 || unitIndex === 0 ? value.toFixed(0) : value.toFixed(1)} ${units[unitIndex]}`;
+      }
+
+      function formatTimestamp(value) {
+        if (!value) {
+          return "Unknown date";
+        }
+        try {
+          return new Intl.DateTimeFormat(undefined, {
+            day: "2-digit",
+            month: "short",
+            hour: "2-digit",
+            minute: "2-digit",
+          }).format(new Date(value));
+        } catch {
+          return "Unknown date";
+        }
+      }
+
+      function findAssetByPath(modelPath) {
+        return assets.find((asset) => asset.modelPath === modelPath) || null;
+      }
+
+      function updateOverlay(modelPath) {
+        const selectedAsset = findAssetByPath(modelPath);
+        if (!selectedAsset) {
+          overlayTitleEl.textContent = modelPath ? "Custom asset preview" : "No asset selected";
+          overlayBodyEl.textContent = modelPath
+            ? "Previewing a direct model link outside the generated asset list."
+            : "Generated assets will appear above when they are available.";
+          return;
+        }
+
+        overlayTitleEl.textContent = selectedAsset.name;
+        overlayBodyEl.textContent = `${selectedAsset.format.toUpperCase()} • ${formatBytes(selectedAsset.sizeBytes)} • ${formatTimestamp(selectedAsset.modifiedAt)}`;
+      }
+
+      function renderAssetStrip(selectedPath) {
+        assetStripEl.replaceChildren();
+
+        if (!assets.length) {
+          assetStripEl.classList.add("hidden");
+          assetEmptyEl.classList.remove("hidden");
+          return;
+        }
+
+        assetEmptyEl.classList.add("hidden");
+        assetStripEl.classList.remove("hidden");
+
+        for (const asset of assets) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "asset-tile";
+          if (asset.modelPath === selectedPath) {
+            button.classList.add("active");
+          }
+
+          const thumb = document.createElement("div");
+          thumb.className = "asset-thumb";
+
+          const name = document.createElement("div");
+          name.className = "asset-name";
+          name.textContent = asset.name;
+
+          const meta = document.createElement("div");
+          meta.className = "asset-meta";
+          meta.innerHTML = `<span>${asset.format}</span><span>${formatBytes(asset.sizeBytes)}</span>`;
+
+          button.append(thumb, name, meta);
+          button.addEventListener("click", () => {
+            selectAsset(asset.modelPath);
+          });
+          assetStripEl.appendChild(button);
+        }
+      }
+
+      function renderAssetSelect(selectedPath) {
+        assetSelectEl.replaceChildren();
+
+        if (!assets.length) {
+          const option = document.createElement("option");
+          option.value = "";
+          option.textContent = "No generated assets yet";
+          assetSelectEl.appendChild(option);
+          assetSelectEl.disabled = true;
+          return;
+        }
+
+        assetSelectEl.disabled = false;
+        for (const asset of assets) {
+          const option = document.createElement("option");
+          option.value = asset.modelPath;
+          option.textContent = `${asset.name} (${asset.format.toUpperCase()})`;
+          assetSelectEl.appendChild(option);
+        }
+
+        const optionValues = new Set(assets.map((asset) => asset.modelPath));
+        if (selectedPath && !optionValues.has(selectedPath)) {
+          const customOption = document.createElement("option");
+          customOption.value = selectedPath;
+          customOption.textContent = "Current linked asset";
+          assetSelectEl.insertBefore(customOption, assetSelectEl.firstChild);
+        }
+
+        assetSelectEl.value = selectedPath || assets[0]?.modelPath || "";
+      }
+
+      async function fetchAssets() {
+        const response = await fetch("/__codex_3d_asset_assets", { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error("Failed to fetch generated assets.");
+        }
+        const payload = await response.json();
+        return Array.isArray(payload?.assets) ? payload.assets : [];
+      }
+
+      async function refreshAssetBrowser(preferredPath = "") {
+        try {
+          assets = await fetchAssets();
+          const nextPath =
+            preferredPath ||
+            currentAssetPath ||
+            new URLSearchParams(window.location.search).get("model") ||
+            assets[0]?.modelPath ||
+            "";
+
+          renderAssetSelect(nextPath);
+          renderAssetStrip(nextPath);
+          updateOverlay(nextPath);
+          return nextPath;
+        } catch (error) {
+          console.error(error);
+          assetSelectEl.replaceChildren();
+          const option = document.createElement("option");
+          option.value = "";
+          option.textContent = "Failed to load generated assets";
+          assetSelectEl.appendChild(option);
+          assetSelectEl.disabled = true;
+          assetStripEl.classList.add("hidden");
+          assetEmptyEl.classList.remove("hidden");
+          overlayTitleEl.textContent = "Asset browser unavailable";
+          overlayBodyEl.textContent = "The viewer could not fetch the generated asset list.";
+          setStatus("Failed to scan generated assets");
+          return preferredPath;
+        }
       }
 
       function frameObject(object3d) {
@@ -244,7 +545,9 @@
 
       async function loadModel(path) {
         clearModel();
-        setStatus(`Loading ${path}`);
+        currentAssetPath = path;
+        updateOverlay(path);
+        setStatus(`Loading ${findAssetByPath(path)?.name || "selected asset"}`);
 
         const cleanPath = path.trim();
         const lower = cleanPath.toLowerCase();
@@ -271,11 +574,24 @@
           currentRoot = root;
           scene.add(root);
           frameObject(root);
-          setStatus(`Loaded ${cleanPath}`);
+          setStatus(`Loaded ${findAssetByPath(cleanPath)?.name || "selected asset"}`);
         } catch (error) {
           console.error(error);
           setStatus(`Failed to load model: ${error.message}`);
         }
+      }
+
+      function selectAsset(modelPath) {
+        if (!modelPath) {
+          return;
+        }
+
+        const next = new URL(window.location.href);
+        next.searchParams.set("model", modelPath);
+        window.history.replaceState({}, "", next);
+        renderAssetSelect(modelPath);
+        renderAssetStrip(modelPath);
+        loadModel(modelPath);
       }
 
       function animate() {
@@ -287,23 +603,36 @@
 
       const params = new URLSearchParams(window.location.search);
       const initialModel = params.get("model") || "";
-      if (initialModel) {
-        inputEl.value = initialModel;
-        loadModel(initialModel);
+
+      const resolvedInitialModel = await refreshAssetBrowser(initialModel);
+      if (resolvedInitialModel) {
+        selectAsset(resolvedInitialModel);
       } else {
-        setStatus("Waiting for model");
+        setStatus("Waiting for generated assets");
       }
 
-      buttonEl.addEventListener("click", () => {
-        const value = inputEl.value.trim();
-        if (!value) {
-          setStatus("Enter a model path or URL");
+      assetSelectEl.addEventListener("change", () => {
+        if (!assetSelectEl.value) {
           return;
         }
-        const next = new URL(window.location.href);
-        next.searchParams.set("model", value);
-        window.history.replaceState({}, "", next);
-        loadModel(value);
+        selectAsset(assetSelectEl.value);
+      });
+
+      refreshAssetsButtonEl.addEventListener("click", async () => {
+        const preservedSelection = currentAssetPath || assetSelectEl.value;
+        const nextPath = await refreshAssetBrowser(preservedSelection);
+        if (nextPath && nextPath !== currentAssetPath) {
+          selectAsset(nextPath);
+          return;
+        }
+        if (nextPath) {
+          renderAssetSelect(nextPath);
+          renderAssetStrip(nextPath);
+          updateOverlay(nextPath);
+          setStatus("Generated assets refreshed");
+        } else {
+          setStatus("Waiting for generated assets");
+        }
       });
     </script>
   </body>
